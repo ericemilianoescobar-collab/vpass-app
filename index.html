@@ -8,7 +8,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-purple-500 selection:text-white">
 
-  <!-- Navegación -->
+  <!-- Navegación limpia -->
   <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
       <div class="flex items-center space-x-3">
@@ -16,15 +16,12 @@
         <span class="text-xs bg-purple-950 text-purple-300 px-2.5 py-1 rounded-full border border-purple-800/60 font-mono">ESKORP</span>
       </div>
 
-      <!-- Centro: Solo Quiénes Somos -->
-      <div class="hidden md:flex items-center space-x-8 text-sm text-slate-300">
-        <a href="#quienes-somos" class="hover:text-white transition-colors">Quiénes Somos</a>
-        <a href="#planes" class="hover:text-white transition-colors">Planes y Precios</a>
-      </div>
+      <!-- Centro vacío y limpio (sin textos innecesarios) -->
+      <div class="hidden md:block"></div>
 
       <!-- Derecha: Validador, Iniciar Sesión y Regístrate (WhatsApp) -->
       <div class="flex items-center space-x-3">
-        <a href="panel.html" class="hidden sm:inline-block text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 transition-colors">
+        <a href="panel.html" class="text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-3 py-2 transition-colors">
           Validador
         </a>
         <button onclick="openLoginModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-medium px-4 py-2 rounded-xl text-xs sm:text-sm transition-all">
@@ -38,7 +35,7 @@
   </nav>
 
   <!-- Hero Section -->
-  <section id="quienes-somos" class="pt-32 pb-20 md:pt-44 md:pb-32 px-6 relative overflow-hidden">
+  <section class="pt-32 pb-20 md:pt-44 md:pb-32 px-6 relative overflow-hidden">
     <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 blur-[140px] rounded-full pointer-events-none"></div>
     <div class="max-w-4xl mx-auto text-center relative z-10">
       <span class="text-xs uppercase tracking-widest text-indigo-400 font-bold bg-indigo-950/60 border border-indigo-800/50 px-3.5 py-1.5 rounded-full">
@@ -61,7 +58,7 @@
     </div>
   </section>
 
-  <!-- Sección de Planes (Con los precios y datos exactos solicitados) -->
+  <!-- Sección de Planes Oficiales -->
   <section id="planes" class="py-20 px-6 bg-slate-900/40 border-t border-b border-slate-800/60">
     <div class="max-w-7xl mx-auto">
       <div class="text-center max-w-2xl mx-auto mb-16">
@@ -69,7 +66,6 @@
         <p class="text-slate-400 text-sm mt-2">Elige el plan ideal para tu evento y comienza a validar accesos al instante.</p>
       </div>
 
-      <!-- Contenedor HORIZONTAL de 3 columnas -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
         
         <!-- Plan Básico -->
@@ -154,7 +150,7 @@
         <p class="text-xs text-slate-400 mt-1">Ingresa tus credenciales autorizadas por ESKORP</p>
       </div>
 
-      <form id="loginForm" onsubmit="handleIndexLogin(event)" class="space-y-4">
+      <form onsubmit="handleIndexLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Correo Electrónico</label>
           <input type="email" id="modalEmail" required placeholder="organizador@eskorp.com" 
@@ -170,7 +166,7 @@
           Credenciales incorrectas o acceso no autorizado.
         </div>
 
-        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all duration-200">
+        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all">
           Ingresar al Panel
         </button>
       </form>
@@ -183,20 +179,11 @@
 
   <script src="js/auth.js"></script>
   <script>
-    function openLoginModal() {
-      document.getElementById('loginModal').classList.remove('hidden');
-    }
-    function closeLoginModal() {
-      document.getElementById('loginModal').classList.add('hidden');
-      document.getElementById('modalError').classList.add('hidden');
-    }
+    function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
+    function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); document.getElementById('modalError').classList.add('hidden'); }
     function handleIndexLogin(event) {
       event.preventDefault();
-      const email = document.getElementById('modalEmail').value.trim();
-      const pass = document.getElementById('modalPassword').value.trim();
-      
-      const success = authenticateOrganizer(email, pass);
-      if (success) {
+      if (authenticateOrganizer(document.getElementById('modalEmail').value.trim(), document.getElementById('modalPassword').value.trim())) {
         window.location.href = 'panel.html';
       } else {
         document.getElementById('modalError').classList.remove('hidden');

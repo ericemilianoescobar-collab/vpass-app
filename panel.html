@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel del Organizador | ESKORP V-PASS</title>
+  <title>Panel de Control y Validador QR | ESKORP V-PASS</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Librería gratuita jsQR para decodificar códigos QR con la cámara del celular -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-6 md:p-10">
 
-  <!-- Validar seguridad de sesión -->
   <script src="js/auth.js"></script>
   <script>checkSessionOrRedirect();</script>
 
@@ -20,15 +21,13 @@
           <span class="text-xl font-black text-purple-400">V-PASS</span>
         </div>
         <div>
-          <h1 class="text-xl font-bold flex items-center gap-2">
-            Proyecto: <span class="text-indigo-400 font-mono text-base bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">ESKORP / V-PASS</span>
-          </h1>
-          <p class="text-sm text-slate-400">Bienvenido, <span id="orgNameUI" class="text-white font-semibold">Cargando...</span></p>
+          <h1 class="text-xl font-bold">Panel Privado de Organizador</h1>
+          <p class="text-sm text-slate-400">Cliente: <span id="orgNameUI" class="text-white font-semibold">Cargando...</span></p>
         </div>
       </div>
       <div class="flex items-center gap-3">
         <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema en Línea
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Seguro
         </span>
         <button onclick="logoutSession()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
           Cerrar Sesión
@@ -36,93 +35,134 @@
       </div>
     </header>
 
-    <!-- Tarjetas de Planes Activos (Renderizado dinámico basado en los permisos 0/1) -->
+    <!-- Estado de Planes Activos -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="plansContainerUI">
-      <!-- Se inyecta con JavaScript según los planes contratados -->
+      <!-- Se inyecta dinámicamente -->
     </div>
 
-    <!-- Gestión de Eventos -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
-      <div class="flex justify-between items-center mb-6">
+    <!-- Módulo de Validación QR con la Cámara del Celular (Las 5 Columnas de Validadores autorizados) -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg mb-8">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
-          <h2 class="text-lg font-bold">Gestión de Eventos y Accesos QR</h2>
-          <p class="text-xs text-slate-400">Controla y edita los eventos vinculados a tu cuenta</p>
+          <h2 class="text-lg font-bold">Validador de Accesos QR en Tiempo Real</h2>
+          <p class="text-xs text-slate-400">Activa la cámara de tu celular o dispositivo para escanear las entradas autorizadas.</p>
         </div>
-        <button onclick="alert('Módulo de creación de nuevo evento habilitado para tu cuenta.')" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all">
-          + Crear Evento
+        <button onclick="startScanner()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-all shadow-lg">
+          📷 Iniciar Escáner de Cámara
         </button>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider">
-              <th class="py-3 px-4">Nombre del Evento</th>
-              <th class="py-3 px-4">Ubicación</th>
-              <th class="py-3 px-4">Estado</th>
-              <th class="py-3 px-4 text-right">Herramientas</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800 text-sm">
-            <tr>
-              <td class="py-4 px-4 font-semibold">Lanzamiento Oficial NIX & Luz</td>
-              <td class="py-4 px-4 text-slate-300">Ayacucho, Huamanga</td>
-              <td class="py-4 px-4"><span class="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full text-xs font-medium border border-emerald-500/20">Programado</span></td>
-              <td class="py-4 px-4 text-right">
-                <button onclick="alert('Abriendo editor del evento')" class="text-indigo-400 hover:text-indigo-300 font-medium mr-3">Editar</button>
-                <button onclick="alert('Abriendo validador de accesos QR')" class="text-purple-400 hover:text-purple-300 font-medium">Validar Accesos</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Contenedor de video para la cámara del celular -->
+      <div id="scannerContainer" class="hidden mb-6 text-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+        <video id="qrVideo" class="w-full max-w-md mx-auto rounded-lg border border-slate-700"></video>
+        <p class="text-xs text-slate-400 mt-2">Apunta la cámara hacia el código QR del asistente.</p>
+        <button onclick="stopScanner()" class="mt-3 bg-red-600 hover:bg-red-500 text-white text-xs px-4 py-2 rounded-lg font-semibold">Detener Cámara</button>
+      </div>
+
+      <div id="scanResult" class="hidden p-4 rounded-xl text-center text-sm font-bold mb-6"></div>
+
+      <!-- Las 5 Columnas de Validadores Habilitados -->
+      <h3 class="text-sm font-bold text-slate-300 mb-4 uppercase tracking-wider">Puntos de Validación Activos (Hasta 5 Columnas Permitidas)</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="validadoresGridUI">
+        <!-- Generado dinámicamente según maxValidadores -->
       </div>
     </div>
   </div>
 
   <script>
-    // Cargar nombre del organizador
-    document.getElementById('orgNameUI').innerText = localStorage.getItem('vpass_org_name') || 'Organizador General';
+    document.getElementById('orgNameUI').innerText = localStorage.getItem('vpass_org_name') || 'Organizador';
+    const userPlans = JSON.parse(localStorage.getItem('vpass_plans') || '{"basico":0,"estandar":0,"premium":0}');
+    const maxVal = parseInt(localStorage.getItem('vpass_max_validadores') || '1');
 
-    // Leer los planes guardados en la sesión (0 o 1)
-    const userPlans = JSON.parse(localStorage.getItem('vpass_plans') || '{"basico":0,"estandار":0,"premium":0}');
+    // Renderizar Planes
     const container = document.getElementById('plansContainerUI');
-
-    let htmlContent = '';
-
-    // Renderizar Plan Básico si está activo (1) o inactivo (0)
-    htmlContent += `
-      <div class="bg-slate-900 border ${userPlans.basico === 1 ? 'border-purple-500/60 bg-purple-950/10' : 'border-slate-800 opacity-60'} p-6 rounded-2xl relative">
-        <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-1">Plan Básico</p>
-        <h3 class="text-xl font-bold ${userPlans.basico === 1 ? 'text-purple-400' : 'text-slate-500'}">
-          ${userPlans.basico === 1 ? 'Activo (Hasta 500 Asistentes)' : 'No Contratado'}
-        </h3>
-        <p class="text-xs text-slate-400 mt-2">Validador QR esencial</p>
+    container.innerHTML = `
+      <div class="bg-slate-900 border ${userPlans.basico === 1 ? 'border-purple-500 bg-purple-950/10' : 'border-slate-800 opacity-50'} p-6 rounded-2xl">
+        <span class="text-xs font-semibold text-slate-400 uppercase">Plan Básico (S/ 100)</span>
+        <h3 class="text-lg font-bold mt-1 ${userPlans.basico === 1 ? 'text-purple-400' : 'text-slate-500'}">${userPlans.basico === 1 ? 'Activo (250 Entradas)' : 'No Contratado'}</h3>
+        <p class="text-xs text-slate-400 mt-1">1 Validador QR incluido</p>
+      </div>
+      <div class="bg-slate-900 border ${userPlans.estandar === 1 ? 'border-indigo-500 bg-indigo-950/10' : 'border-slate-800 opacity-50'} p-6 rounded-2xl">
+        <span class="text-xs font-semibold text-slate-400 uppercase">Plan Estándar (S/ 150)</span>
+        <h3 class="text-lg font-bold mt-1 ${userPlans.estandar === 1 ? 'text-indigo-400' : 'text-slate-500'}">${userPlans.estandar === 1 ? 'Activo (350 Entradas)' : 'No Contratado'}</h3>
+        <p class="text-xs text-slate-400 mt-1">3 Validadores QR incluidos</p>
+      </div>
+      <div class="bg-slate-900 border ${userPlans.premium === 1 ? 'border-pink-500 bg-pink-950/10' : 'border-slate-800 opacity-50'} p-6 rounded-2xl">
+        <span class="text-xs font-semibold text-slate-400 uppercase">Plan Premium (S/ 250)</span>
+        <h3 class="text-lg font-bold mt-1 ${userPlans.premium === 1 ? 'text-pink-400' : 'text-slate-500'}">${userPlans.premium === 1 ? 'Activo (Ilimitado)' : 'No Contratado'}</h3>
+        <p class="text-xs text-slate-400 mt-1">5 Validadores y Reporte Detallado</p>
       </div>
     `;
 
-    // Renderizar Plan Estándar
-    htmlContent += `
-      <div class="bg-slate-900 border ${userPlans.estandar === 1 ? 'border-indigo-500/60 bg-indigo-950/10' : 'border-slate-800 opacity-60'} p-6 rounded-2xl relative">
-        <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-1">Plan Estándar</p>
-        <h3 class="text-xl font-bold ${userPlans.estandar === 1 ? 'text-indigo-400' : 'text-slate-500'}">
-          ${userPlans.estandar === 1 ? 'Activo (Hasta 2,000 Asistentes)' : 'No Contratado'}
-        </h3>
-        <p class="text-xs text-slate-400 mt-2">Multidispositivo simultáneo</p>
-      </div>
-    `;
+    // Renderizar las columnas de validadores (hasta 5)
+    const valGrid = document.getElementById('validadoresGridUI');
+    let valHtml = '';
+    for (let i = 1; i <= 5; i++) {
+      const isAllowed = i <= maxVal;
+      valHtml += `
+        <div class="bg-slate-950 border ${isAllowed ? 'border-emerald-500/50 bg-emerald-950/10' : 'border-slate-800 opacity-40'} p-4 rounded-xl text-center">
+          <span class="text-xs font-mono text-slate-400">Punto #${i}</span>
+          <h4 class="font-bold mt-1 text-sm ${isAllowed ? 'text-emerald-400' : 'text-slate-500'}">${isAllowed ? 'Habilitado' : 'Bloqueado'}</h4>
+          <p class="text-[10px] text-slate-400 mt-1">${isAllowed ? 'Listo para escanear' : 'Requiere plan superior'}</p>
+        </div>
+      `;
+    }
+    valGrid.innerHTML = valHtml;
 
-    // Renderizar Plan Premium
-    htmlContent += `
-      <div class="bg-slate-900 border ${userPlans.premium === 1 ? 'border-pink-500/60 bg-pink-950/10' : 'border-slate-800 opacity-60'} p-6 rounded-2xl relative">
-        <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-1">Plan Premium</p>
-        <h3 class="text-xl font-bold ${userPlans.premium === 1 ? 'text-pink-400' : 'text-slate-500'}">
-          ${userPlans.premium === 1 ? 'Activo (Ilimitado / Corporativo)' : 'No Contratado'}
-        </h3>
-        <p class="text-xs text-slate-400 mt-2">Soporte y Submarcas ilimitadas</p>
-      </div>
-    `;
+    // Lógica de la cámara del celular para escanear QR
+    let videoStream = null;
+    let scanning = false;
 
-    container.innerHTML = htmlContent;
+    function startScanner() {
+      const container = document.getElementById('scannerContainer');
+      const video = document.getElementById('qrVideo');
+      container.classList.remove('hidden');
+      
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => {
+          videoStream = stream;
+          video.srcObject = stream;
+          video.setAttribute("playsinline", true);
+          video.play();
+          scanning = true;
+          requestAnimationFrame(tickScanner);
+        })
+        .catch(err => {
+          alert("No se pudo acceder a la cámara del dispositivo: " + err);
+        });
+    }
+
+    function stopScanner() {
+      scanning = false;
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+      document.getElementById('scannerContainer').classList.add('hidden');
+    }
+
+    function tickScanner() {
+      if (!scanning) return;
+      const video = document.getElementById('qrVideo');
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        const canvasElement = document.createElement("canvas");
+        canvasElement.height = video.videoHeight;
+        canvasElement.width = video.videoWidth;
+        const canvasContext = canvasElement.getContext("2d");
+        canvasContext.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+        const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+        
+        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+        if (code) {
+          stopScanner();
+          const resDiv = document.getElementById('scanResult');
+          resDiv.classList.remove('hidden');
+          resDiv.className = "p-4 rounded-xl text-center text-sm font-bold mb-6 bg-emerald-500/20 border border-emerald-500 text-emerald-300";
+          resDiv.innerText = `✅ ACCESO VÁLIDO: ${code.data}`;
+          return;
+        }
+      }
+      requestAnimationFrame(tickScanner);
+    }
   </script>
 </body>
 </html>
