@@ -3,61 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>V-PASS | Control de Accesos Corporativo - ESKORP</title>
+  <title>V-PASS | Agencia de Entradas Online con QR - ESKORP</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-purple-500 selection:text-white">
 
   <!-- Navegación -->
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <span class="text-xl font-black bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">V-PASS</span>
         <span class="text-xs bg-purple-950 text-purple-300 px-2.5 py-1 rounded-full border border-purple-800/60 font-mono">ESKORP</span>
       </div>
+
+      <!-- Centro: Solo Quiénes Somos -->
       <div class="hidden md:flex items-center space-x-8 text-sm text-slate-300">
-        <a href="#inicio" class="hover:text-white transition-colors">Inicio</a>
+        <a href="#quienes-somos" class="hover:text-white transition-colors">Quiénes Somos</a>
         <a href="#planes" class="hover:text-white transition-colors">Planes y Precios</a>
-        <a href="#submarcas" class="hover:text-white transition-colors">Ecosistema NIX & Luz</a>
       </div>
-      <div>
-        <button onclick="openLoginModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-purple-600/20 transition-all">
+
+      <!-- Derecha: Validador, Iniciar Sesión y Regístrate (WhatsApp) -->
+      <div class="flex items-center space-x-3">
+        <a href="panel.html" class="hidden sm:inline-block text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 transition-colors">
+          Validador
+        </a>
+        <button onclick="openLoginModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-medium px-4 py-2 rounded-xl text-xs sm:text-sm transition-all">
           Iniciar Sesión
         </button>
+        <a href="https://wa.me/51900000000?text=Hola%20ESKORP,%20quiero%20registrarme%20y%20contratar%20un%20plan%20en%20V-PASS" target="_blank" class="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-medium px-4 py-2 rounded-xl text-xs sm:text-sm shadow-lg shadow-emerald-600/20 transition-all">
+          Regístrate
+        </a>
       </div>
     </div>
   </nav>
 
   <!-- Hero Section -->
-  <section id="inicio" class="pt-32 pb-20 md:pt-44 md:pb-32 px-6 relative overflow-hidden">
+  <section id="quienes-somos" class="pt-32 pb-20 md:pt-44 md:pb-32 px-6 relative overflow-hidden">
     <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 blur-[140px] rounded-full pointer-events-none"></div>
     <div class="max-w-4xl mx-auto text-center relative z-10">
       <span class="text-xs uppercase tracking-widest text-indigo-400 font-bold bg-indigo-950/60 border border-indigo-800/50 px-3.5 py-1.5 rounded-full">
-        Tecnología de Validación QR Avanzada
+        Agencia de Entradas Online con Lector QR
       </span>
       <h1 class="text-4xl md:text-6xl font-black mt-6 tracking-tight leading-tight">
-        Control total de accesos para tus <span class="bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-400 bg-clip-text text-transparent">eventos y marcas</span>
+        Control privado, confiable y con <span class="bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-400 bg-clip-text text-transparent">máxima rapidez</span>
       </h1>
-      <p class="text-slate-400 mt-6 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-        Gestiona entradas, valida accesos en tiempo real con multidispositivos y mantén sincronizadas tus operaciones comerciales corporativas desde Ayacucho para el mundo.
+      <p class="text-slate-300 mt-6 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+        Somos una agencia especializada en la gestión y validación de accesos mediante códigos QR. Operamos con total seguridad y rapidez, manteniendo comunicación directa y conectada a WhatsApp para todos nuestros organizadores en Ayacucho y el Perú.
       </p>
       <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
         <a href="#planes" class="bg-white text-slate-950 hover:bg-slate-200 font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-xl">
           Ver Planes y Tarifas
         </a>
-        <button onclick="openLoginModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition-all">
-          Acceso Organizadores
-        </button>
+        <a href="https://wa.me/51900000000?text=Hola%20ESKORP,%20deseo%20más%20información%20sobre%20V-PASS" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition-all shadow-lg shadow-emerald-600/20">
+          Contactar por WhatsApp
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- Sección de Planes (Perfectamente HORIZONTALES y limpias) -->
+  <!-- Sección de Planes (Con los precios y datos exactos solicitados) -->
   <section id="planes" class="py-20 px-6 bg-slate-900/40 border-t border-b border-slate-800/60">
     <div class="max-w-7xl mx-auto">
       <div class="text-center max-w-2xl mx-auto mb-16">
-        <h2 class="text-3xl font-bold">Planes Diseñados a tu Medida</h2>
-        <p class="text-slate-400 text-sm mt-2">Selecciona la capacidad ideal para tus eventos corporativos o comerciales.</p>
+        <h2 class="text-3xl font-bold">Planes y Precios Oficiales</h2>
+        <p class="text-slate-400 text-sm mt-2">Elige el plan ideal para tu evento y comienza a validar accesos al instante.</p>
       </div>
 
       <!-- Contenedor HORIZONTAL de 3 columnas -->
@@ -68,20 +77,20 @@
           <div>
             <span class="text-xs font-mono text-purple-400 uppercase tracking-widest font-semibold">Inicial</span>
             <h3 class="text-xl font-bold mt-2">Plan Básico</h3>
-            <p class="text-slate-400 text-xs mt-1">Ideal para pequeños eventos y emprendimientos de confitería (Ej. Submarca Luz).</p>
+            <p class="text-slate-400 text-xs mt-1">Ideal para eventos pequeños y control esencial.</p>
             <div class="my-6">
-              <span class="text-4xl font-black">S/ 99</span>
+              <span class="text-4xl font-black">S/ 100</span>
               <span class="text-slate-400 text-xs"> / evento</span>
             </div>
             <ul class="space-y-3 text-sm text-slate-300">
-              <li class="flex items-center gap-2">✓ Hasta 500 asistentes</li>
-              <li class="flex items-center gap-2">✓ Validador QR básico</li>
-              <li class="flex items-center gap-2">✓ Soporte por correo</li>
+              <li class="flex items-center gap-2">✓ 250 Entradas</li>
+              <li class="flex items-center gap-2">✓ 1 Validador QR</li>
+              <li class="flex items-center gap-2">✓ Conectado a WhatsApp</li>
             </ul>
           </div>
-          <button onclick="openLoginModal()" class="mt-8 w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-semibold text-sm transition-all">
-            Solicitar Plan
-          </button>
+          <a href="https://wa.me/51900000000?text=Hola%20ESKORP,%20quiero%20contratar%20el%20Plan%20Básico%20de%20S/100" target="_blank" class="mt-8 w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-semibold text-sm text-center transition-all">
+            Solicitar Plan Básico
+          </a>
         </div>
 
         <!-- Plan Estándar -->
@@ -92,21 +101,21 @@
           <div>
             <span class="text-xs font-mono text-indigo-400 uppercase tracking-widest font-semibold">Profesional</span>
             <h3 class="text-xl font-bold mt-2">Plan Estándar</h3>
-            <p class="text-slate-400 text-xs mt-1">Perfecto para lanzamientos de bebidas RTD y eventos medianos (Ej. NIX).</p>
+            <p class="text-slate-400 text-xs mt-1">Perfecto para eventos medianos con múltiples puntos de acceso.</p>
             <div class="my-6">
-              <span class="text-4xl font-black">S/ 249</span>
+              <span class="text-4xl font-black">S/ 150</span>
               <span class="text-slate-400 text-xs"> / evento</span>
             </div>
             <ul class="space-y-3 text-sm text-slate-300">
-              <li class="flex items-center gap-2">✓ Hasta 2,000 asistentes</li>
-              <li class="flex items-center gap-2">✓ Multidispositivo simultáneo</li>
-              <li class="flex items-center gap-2">✓ Reportes de acceso en tiempo real</li>
-              <li class="flex items-center gap-2">✓ Sincronización con RUC</li>
+              <li class="flex items-center gap-2">✓ 350 Entradas</li>
+              <li class="flex items-center gap-2">✓ 3 Validadores QR</li>
+              <li class="flex items-center gap-2">✓ Conectado a WhatsApp</li>
+              <li class="flex items-center gap-2">✓ Gestión rápida y privada</li>
             </ul>
           </div>
-          <button onclick="openLoginModal()" class="mt-8 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white py-3 rounded-xl font-semibold text-sm transition-all shadow-lg">
-            Solicitar Plan
-          </button>
+          <a href="https://wa.me/51900000000?text=Hola%20ESKORP,%20quiero%20contratar%20el%20Plan%20Estándar%20de%20S/150" target="_blank" class="mt-8 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white py-3 rounded-xl font-semibold text-sm text-center transition-all shadow-lg">
+            Solicitar Plan Estándar
+          </a>
         </div>
 
         <!-- Plan Premium -->
@@ -114,21 +123,21 @@
           <div>
             <span class="text-xs font-mono text-pink-400 uppercase tracking-widest font-semibold">Corporativo</span>
             <h3 class="text-xl font-bold mt-2">Plan Premium</h3>
-            <p class="text-slate-400 text-xs mt-1">Acceso ilimitado para macro eventos y control total de múltiples submarcas.</p>
+            <p class="text-slate-400 text-xs mt-1">Para grandes eventos que exigen máxima capacidad y detalle.</p>
             <div class="my-6">
-              <span class="text-4xl font-black">S/ 499</span>
-              <span class="text-slate-400 text-xs"> / mes ilimitado</span>
+              <span class="text-4xl font-black">S/ 250</span>
+              <span class="text-slate-400 text-xs"> / evento</span>
             </div>
             <ul class="space-y-3 text-sm text-slate-300">
-              <li class="flex items-center gap-2">✓ Asistentes ilimitados</li>
-              <li class="flex items-center gap-2">✓ Soporte técnico prioritario 24/7</li>
-              <li class="flex items-center gap-2">✓ Múltiples submarcas vinculadas</li>
-              <li class="flex items-center gap-2">✓ Panel personalizado ESKORP</li>
+              <li class="flex items-center gap-2">✓ Entradas ilimitadas</li>
+              <li class="flex items-center gap-2">✓ 5 Validadores QR</li>
+              <li class="flex items-center gap-2">✓ Reporte detallado</li>
+              <li class="flex items-center gap-2">✓ Soporte prioritario por WhatsApp</li>
             </ul>
           </div>
-          <button onclick="openLoginModal()" class="mt-8 w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-semibold text-sm transition-all">
-            Solicitar Plan
-          </button>
+          <a href="https://wa.me/51900000000?text=Hola%20ESKORP,%20quiero%20contratar%20el%20Plan%20Premium%20de%20S/250" target="_blank" class="mt-8 w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-semibold text-sm text-center transition-all">
+            Solicitar Plan Premium
+          </a>
         </div>
 
       </div>
@@ -172,7 +181,6 @@
     &copy; 2026 ESKORP / V-PASS. Todos los derechos reservados. Ayacucho, Huamanga.
   </footer>
 
-  <!-- Archivo centralizado de autenticación y lógica -->
   <script src="js/auth.js"></script>
   <script>
     function openLoginModal() {
