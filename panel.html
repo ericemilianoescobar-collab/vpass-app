@@ -3,165 +3,235 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Control y Validador QR | ESKORP V-PASS</title>
+  <title>Panel de Control | ESKORP V-PASS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Librería gratuita jsQR para decodificar códigos QR con la cámara del celular -->
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <!-- Librería QRCode para generar los códigos de los invitados -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-6 md:p-10">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
 
   <script src="js/auth.js"></script>
-  <script>checkSessionOrRedirect();</script>
+  <script>
+    const currentOrgSession = JSON.parse(localStorage.getItem('vpass_logged_org'));
+    if (!currentOrgSession) window.location.href = 'index.html';
+  </script>
 
-  <div class="max-w-6xl mx-auto">
+  <div class="max-w-6xl mx-auto space-y-8">
+    
     <!-- Cabecera -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900 border border-slate-800 p-6 rounded-2xl mb-8 shadow-lg gap-4">
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl gap-4">
       <div class="flex items-center space-x-4">
         <div class="bg-purple-600/20 border border-purple-500/40 p-3 rounded-xl">
           <span class="text-xl font-black text-purple-400">V-PASS</span>
         </div>
         <div>
-          <h1 class="text-xl font-bold">Panel Privado de Organizador</h1>
-          <p class="text-sm text-slate-400">Cliente: <span id="orgNameUI" class="text-white font-semibold">Cargando...</span></p>
+          <h1 class="text-xl font-bold" id="orgTitleName">Organizador</h1>
+          <p class="text-xs text-slate-400">Panel de Control General - ESKORP</p>
         </div>
       </div>
-      <div class="flex items-center gap-3">
-        <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema Seguro
-        </span>
-        <button onclick="logoutSession()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-          Cerrar Sesión
-        </button>
-      </div>
+      <button onclick="logoutOrg()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition-colors">
+        Cerrar Sesión
+      </button>
     </header>
 
-    <!-- Estado de Planes Activos -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="plansContainerUI">
-      <!-- Se inyecta dinámicamente -->
+    <!-- Estado del Plan (0 / 1 y Uso Único) -->
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-base font-bold mb-2">Estado de tu Plan Actual</h2>
+      <p class="text-xs text-slate-400 mb-6">Nota: Cada plan contratado es de uso único para el evento asignado y no es reutilizable una vez finalizado.</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="planStatusGrid">
+        <!-- Inyectado por JS -->
+      </div>
     </div>
 
-    <!-- Módulo de Validación QR con la Cámara del Celular (Las 5 Columnas de Validadores autorizados) -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg mb-8">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <!-- Gestión de Validadores (Columnas configurables según el límite del plan) -->
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-lg">
+      <div class="flex justify-between items-center mb-4">
         <div>
-          <h2 class="text-lg font-bold">Validador de Accesos QR en Tiempo Real</h2>
-          <p class="text-xs text-slate-400">Activa la cámara de tu celular o dispositivo para escanear las entradas autorizadas.</p>
+          <h2 class="text-base font-bold">Credenciales para los Validadores de Puerta</h2>
+          <p class="text-xs text-slate-400">Crea el correo y contraseña ficticios para cada puerta autorizada según tu plan.</p>
         </div>
-        <button onclick="startScanner()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-all shadow-lg">
-          📷 Iniciar Escáner de Cámara
+        <span id="maxValBadge" class="text-xs bg-purple-950 text-purple-300 border border-purple-800 px-3 py-1 rounded-full font-mono"></span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="validadoresConfigGrid">
+        <!-- Inyectado por JS dinámicamente hasta 5 columnas -->
+      </div>
+      <div class="mt-4 text-right">
+        <button onclick="saveValidadoresConfig()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition-all shadow-md">
+          Guardar Accesos de Validadores
         </button>
       </div>
+    </div>
 
-      <!-- Contenedor de video para la cámara del celular -->
-      <div id="scannerContainer" class="hidden mb-6 text-center bg-slate-950 p-4 rounded-xl border border-slate-800">
-        <video id="qrVideo" class="w-full max-w-md mx-auto rounded-lg border border-slate-700"></video>
-        <p class="text-xs text-slate-400 mt-2">Apunta la cámara hacia el código QR del asistente.</p>
-        <button onclick="stopScanner()" class="mt-3 bg-red-600 hover:bg-red-500 text-white text-xs px-4 py-2 rounded-lg font-semibold">Detener Cámara</button>
-      </div>
+    <!-- Creador de Eventos, Flyer y Entradas con WhatsApp -->
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-base font-bold mb-2">Crear Evento y Generar Entradas QR con WhatsApp</h2>
+      <p class="text-xs text-slate-400 mb-6">Sube tu flyer, ingresa los datos del asistente y genera el enlace directo para enviarle su entrada por WhatsApp.</p>
 
-      <div id="scanResult" class="hidden p-4 rounded-xl text-center text-sm font-bold mb-6"></div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Nombre del Evento</label>
+            <input type="text" id="eventName" placeholder="Ej. Fiesta Oficial NIX 2026" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Nombre del Invitado / Asistente</label>
+            <input type="text" id="guestName" placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Número de WhatsApp (con código de país, ej: 51900000000)</label>
+            <input type="text" id="guestPhone" placeholder="51900000000" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Subir Flyer / Imagen Promocional (Opcional)</label>
+            <input type="file" id="eventFlyer" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-950 file:text-purple-300 hover:file:bg-purple-900 cursor-pointer">
+          </div>
+          <button onclick="generateGuestTicket()" class="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition-all">
+            Generar Entrada y Enlace de WhatsApp
+          </button>
+        </div>
 
-      <!-- Las 5 Columnas de Validadores Habilitados -->
-      <h3 class="text-sm font-bold text-slate-300 mb-4 uppercase tracking-wider">Puntos de Validación Activos (Hasta 5 Columnas Permitidas)</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="validadoresGridUI">
-        <!-- Generado dinámicamente según maxValidadores -->
+        <!-- Vista previa de la entrada generada -->
+        <div class="bg-slate-950 border border-slate-800 p-6 rounded-xl flex flex-col items-center justify-center text-center">
+          <div id="ticketPreviewContainer" class="hidden space-y-4 w-full">
+            <h3 id="previewEventTitle" class="font-bold text-lg text-purple-400"></h3>
+            <div id="previewFlyerBox" class="mb-2"></div>
+            <p class="text-sm font-semibold text-white">Invitado: <span id="previewGuestName" class="text-indigo-300"></span></p>
+            <div class="bg-white p-3 rounded-xl inline-block mx-auto" id="qrcodeCanvas"></div>
+            <p class="text-[10px] text-slate-400 font-mono">Código QR de Acceso Único</p>
+            
+            <a id="whatsappShareBtn" href="#" target="_blank" class="block w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl text-sm transition-all shadow-md">
+              💬 Enviar Entrada por WhatsApp
+            </a>
+          </div>
+          <div id="ticketPlaceholder" class="text-slate-500 text-xs py-12">
+            Completa los datos y haz clic en generar para visualizar la entrada del asistente.
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
 
   <script>
-    document.getElementById('orgNameUI').innerText = localStorage.getItem('vpass_org_name') || 'Organizador';
-    const userPlans = JSON.parse(localStorage.getItem('vpass_plans') || '{"basico":0,"estandar":0,"premium":0}');
-    const maxVal = parseInt(localStorage.getItem('vpass_max_validadores') || '1');
+    // Cargar datos en pantalla
+    document.getElementById('orgTitleName').innerText = currentOrgSession.name;
+    document.getElementById('maxValBadge').innerText = `Límite: ${currentOrgSession.maxValidadores} Validador(es)`;
 
-    // Renderizar Planes
-    const container = document.getElementById('plansContainerUI');
-    container.innerHTML = `
-      <div class="bg-slate-900 border ${userPlans.basico === 1 ? 'border-purple-500 bg-purple-950/10' : 'border-slate-800 opacity-50'} p-6 rounded-2xl">
-        <span class="text-xs font-semibold text-slate-400 uppercase">Plan Básico (S/ 100)</span>
-        <h3 class="text-lg font-bold mt-1 ${userPlans.basico === 1 ? 'text-purple-400' : 'text-slate-500'}">${userPlans.basico === 1 ? 'Activo (250 Entradas)' : 'No Contratado'}</h3>
-        <p class="text-xs text-slate-400 mt-1">1 Validador QR incluido</p>
+    // Renderizar estado de planes (0/1 y uso único)
+    const plansGrid = document.getElementById('planStatusGrid');
+    const plans = currentOrgSession.plans;
+    plansGrid.innerHTML = `
+      <div class="bg-slate-950 border ${plans.basico.active === 1 ? 'border-purple-500' : 'border-slate-800 opacity-60'} p-4 rounded-xl">
+        <span class="text-xs font-mono text-slate-400">Plan Básico (S/ 100)</span>
+        <div class="text-lg font-bold mt-1 ${plans.basico.active === 1 ? 'text-purple-400' : 'text-slate-500'}">
+          ${plans.basico.active === 1 ? 'Activo (1)' : 'Inactivo (0)'}
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1">Estado de uso: ${plans.basico.used ? 'Ya Utilizado / Agotado' : 'Disponible'}</p>
       </div>
-      <div class="bg-slate-900 border ${userPlans.estandar === 1 ? 'border-indigo-500 bg-indigo-950/10' : 'border-slate-800 opacity-50'} p-6 rounded-2xl">
-        <span class="text-xs font-semibold text-slate-400 uppercase">Plan Estándar (S/ 150)</span>
-        <h3 class="text-lg font-bold mt-1 ${userPlans.estandar === 1 ? 'text-indigo-400' : 'text-slate-500'}">${userPlans.estandar === 1 ? 'Activo (350 Entradas)' : 'No Contratado'}</h3>
-        <p class="text-xs text-slate-400 mt-1">3 Validadores QR incluidos</p>
+      <div class="bg-slate-950 border ${plans.estandar.active === 1 ? 'border-indigo-500' : 'border-slate-800 opacity-60'} p-4 rounded-xl">
+        <span class="text-xs font-mono text-slate-400">Plan Estándar (S/ 150)</span>
+        <div class="text-lg font-bold mt-1 ${plans.estandar.active === 1 ? 'text-indigo-400' : 'text-slate-500'}">
+          ${plans.estandar.active === 1 ? 'Activo (1)' : 'Inactivo (0)'}
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1">Estado de uso: ${plans.estandar.used ? 'Ya Utilizado / Agotado' : 'Disponible'}</p>
       </div>
-      <div class="bg-slate-900 border ${userPlans.premium === 1 ? 'border-pink-500 bg-pink-950/10' : 'border-slate-800 opacity-50'} p-6 rounded-2xl">
-        <span class="text-xs font-semibold text-slate-400 uppercase">Plan Premium (S/ 250)</span>
-        <h3 class="text-lg font-bold mt-1 ${userPlans.premium === 1 ? 'text-pink-400' : 'text-slate-500'}">${userPlans.premium === 1 ? 'Activo (Ilimitado)' : 'No Contratado'}</h3>
-        <p class="text-xs text-slate-400 mt-1">5 Validadores y Reporte Detallado</p>
+      <div class="bg-slate-950 border ${plans.premium.active === 1 ? 'border-pink-500' : 'border-slate-800 opacity-60'} p-4 rounded-xl">
+        <span class="text-xs font-mono text-slate-400">Plan Premium (S/ 250)</span>
+        <div class="text-lg font-bold mt-1 ${plans.premium.active === 1 ? 'text-pink-400' : 'text-slate-500'}">
+          ${plans.premium.active === 1 ? 'Activo (1)' : 'Inactivo (0)'}
+        </div>
+        <p class="text-[10px] text-slate-400 mt-1">Estado de uso: ${plans.premium.used ? 'Ya Utilizado / Agotado' : 'Disponible'}</p>
       </div>
     `;
 
-    // Renderizar las columnas de validadores (hasta 5)
-    const valGrid = document.getElementById('validadoresGridUI');
+    // Renderizar validadores configurables (hasta maxValidadores)
+    const valConfigGrid = document.getElementById('validadoresConfigGrid');
     let valHtml = '';
     for (let i = 1; i <= 5; i++) {
-      const isAllowed = i <= maxVal;
+      const cfg = currentOrgSession.validadoresConfig[i-1] || { name: `Puerta #${i}`, email: `val${i}@eskorp.com`, pass: '123456', status: 'Habilitado' };
+      const isAllowed = i <= currentOrgSession.maxValidadores;
+
       valHtml += `
-        <div class="bg-slate-950 border ${isAllowed ? 'border-emerald-500/50 bg-emerald-950/10' : 'border-slate-800 opacity-40'} p-4 rounded-xl text-center">
-          <span class="text-xs font-mono text-slate-400">Punto #${i}</span>
-          <h4 class="font-bold mt-1 text-sm ${isAllowed ? 'text-emerald-400' : 'text-slate-500'}">${isAllowed ? 'Habilitado' : 'Bloqueado'}</h4>
-          <p class="text-[10px] text-slate-400 mt-1">${isAllowed ? 'Listo para escanear' : 'Requiere plan superior'}</p>
+        <div class="bg-slate-950 border ${isAllowed ? 'border-slate-700' : 'border-slate-900 opacity-40'} p-4 rounded-xl space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-mono text-purple-400">Puerta #${i}</span>
+            <span class="text-[10px] px-2 py-0.5 rounded ${isAllowed ? 'bg-emerald-950 text-emerald-300' : 'bg-slate-800 text-slate-500'}">${isAllowed ? 'Permitido' : 'Bloqueado'}</span>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1">Nombre de Puerta</label>
+            <input type="text" id="valName_${i}" value="${cfg.name}" ${!isAllowed ? 'disabled' : ''} class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1">Correo de Acceso</label>
+            <input type="email" id="valEmail_${i}" value="${cfg.email}" ${!isAllowed ? 'disabled' : ''} class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1">Contraseña</label>
+            <input type="text" id="valPass_${i}" value="${cfg.pass}" ${!isAllowed ? 'disabled' : ''} class="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1.5 text-xs text-white">
+          </div>
         </div>
       `;
     }
-    valGrid.innerHTML = valHtml;
+    valConfigGrid.innerHTML = valHtml;
 
-    // Lógica de la cámara del celular para escanear QR
-    let videoStream = null;
-    let scanning = false;
-
-    function startScanner() {
-      const container = document.getElementById('scannerContainer');
-      const video = document.getElementById('qrVideo');
-      container.classList.remove('hidden');
-      
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(stream => {
-          videoStream = stream;
-          video.srcObject = stream;
-          video.setAttribute("playsinline", true);
-          video.play();
-          scanning = true;
-          requestAnimationFrame(tickScanner);
-        })
-        .catch(err => {
-          alert("No se pudo acceder a la cámara del dispositivo: " + err);
+    function saveValidadoresConfig() {
+      let newConfigs = [];
+      for (let i = 1; i <= currentOrgSession.maxValidadores; i++) {
+        newConfigs.push({
+          id: i,
+          name: document.getElementById(`valName_${i}`).value,
+          email: document.getElementById(`valEmail_${i}`).value,
+          pass: document.getElementById(`valPass_${i}`).value,
+          status: "Habilitado"
         });
+      }
+      currentOrgSession.validadoresConfig = newConfigs;
+      
+      // Actualizar DB global
+      let allOrgs = getOrganizers();
+      let index = allOrgs.findIndex(o => o.email === currentOrgSession.email);
+      if (index !== -1) {
+        allOrgs[index] = currentOrgSession;
+        saveOrganizers(allOrgs);
+        localStorage.setItem('vpass_logged_org', JSON.stringify(currentOrgSession));
+        alert("¡Credenciales de validadores guardadas correctamente!");
+      }
     }
 
-    function stopScanner() {
-      scanning = false;
-      if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
+    function generateGuestTicket() {
+      const eventName = document.getElementById('eventName').value.trim();
+      const guestName = document.getElementById('guestName').value.trim();
+      const guestPhone = document.getElementById('guestPhone').value.trim();
+      
+      if (!eventName || !guestName || !guestPhone) {
+        alert("Por favor completa el nombre del evento, nombre del invitado y su número de WhatsApp.");
+        return;
       }
-      document.getElementById('scannerContainer').classList.add('hidden');
+
+      document.getElementById('ticketPlaceholder').classList.add('hidden');
+      document.getElementById('ticketPreviewContainer').classList.remove('hidden');
+
+      document.getElementById('previewEventTitle').innerText = eventName;
+      document.getElementById('previewGuestName').innerText = guestName;
+
+      // Generar código QR único
+      const qrDataText = `EVENTO: ${eventName} | ASISTENTE: ${guestName} | CÓDIGO: ${Math.random().toString(36).substring(7).toUpperCase()}`;
+      const qrCanvas = document.getElementById('qrcodeCanvas');
+      qrCanvas.innerHTML = "";
+      QRCode.toCanvas(qrCanvas, qrDataText, { width: 140 }, function (error) {
+        if (error) console.error(error);
+      });
+
+      // Enlace de WhatsApp
+      const msg = encodeURIComponent(`Hola *${guestName}*, aquí tienes tu entrada digital oficial para *${eventName}* de ESKORP V-PASS. Presenta este código QR en la puerta de ingreso. ¡Te esperamos!`);
+      document.getElementById('whatsappShareBtn').href = `https://wa.me/${guestPhone}?text=${msg}`;
     }
 
-    function tickScanner() {
-      if (!scanning) return;
-      const video = document.getElementById('qrVideo');
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        const canvasElement = document.createElement("canvas");
-        canvasElement.height = video.videoHeight;
-        canvasElement.width = video.videoWidth;
-        const canvasContext = canvasElement.getContext("2d");
-        canvasContext.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-        const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
-        
-        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
-        if (code) {
-          stopScanner();
-          const resDiv = document.getElementById('scanResult');
-          resDiv.classList.remove('hidden');
-          resDiv.className = "p-4 rounded-xl text-center text-sm font-bold mb-6 bg-emerald-500/20 border border-emerald-500 text-emerald-300";
-          resDiv.innerText = `✅ ACCESO VÁLIDO: ${code.data}`;
-          return;
-        }
-      }
-      requestAnimationFrame(tickScanner);
+    function logoutOrg() {
+      localStorage.removeItem('vpass_logged_org');
+      window.location.href = 'index.html';
     }
   </script>
 </body>
