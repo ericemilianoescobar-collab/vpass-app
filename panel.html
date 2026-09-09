@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Control | ESKORP V-PASS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-white min-h-screen p-6 md:p-10">
+
+  <!-- Control de seguridad: Si no está logueado, lo devuelve al login -->
+  <script>
+    if (localStorage.getItem('vpass_is_logged') !== 'true') {
+      window.location.href = 'login.html';
+    }
+  </script>
+
+  <div class="max-w-6xl mx-auto">
+    <!-- Cabecera del Panel -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-900 border border-gray-800 p-6 rounded-2xl mb-8 shadow-lg gap-4">
+      <div class="flex items-center space-x-4">
+        <div class="bg-purple-600/20 border border-purple-500/40 p-3 rounded-xl">
+          <span class="text-xl font-black text-purple-400">V-PASS</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold flex items-center gap-2">
+            Proyecto Corporativo: <span class="text-indigo-400 font-mono text-base bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800">ESKORP</span>
+          </h1>
+          <p class="text-sm text-gray-400">Organizador: <span id="displayOrgName" class="text-white font-semibold">Cargando...</span></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistema en Línea
+        </span>
+        <button onclick="logoutSession()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          Cerrar Sesión
+        </button>
+      </div>
+    </header>
+
+    <!-- Tarjetas de Planes Activos -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl relative overflow-hidden">
+        <p class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-1">Plan Actual Registrado</p>
+        <h3 class="text-xl font-bold text-purple-400 mt-2" id="displayOrgPlan">Plan Premium</h3>
+        <p class="text-xs text-gray-400 mt-2">Sede principal: Ayacucho, Huamanga</p>
+      </div>
+
+      <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl">
+        <p class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-1">Submarcas Vinculadas</p>
+        <h3 class="text-xl font-bold text-indigo-400 mt-2">NIX (Bebidas) & Luz (Dulces)</h3>
+        <p class="text-xs text-gray-400 mt-2">Control cruzado de accesos habilitado</p>
+      </div>
+
+      <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl">
+        <p class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-1">Estado de Facturación RUC</p>
+        <h3 class="text-xl font-bold text-emerald-400 mt-2">Activo / Emisión de Tickets</h3>
+        <p class="text-xs text-gray-400 mt-2">Sincronizado con validación QR</p>
+      </div>
+    </div>
+
+    <!-- Sección de Gestión de Eventos -->
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-lg">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-lg font-bold">Gestión y Edición de Eventos</h2>
+          <p class="text-xs text-gray-400">Controla los accesos y valida entradas en tiempo real</p>
+        </div>
+        <button onclick="alert('Módulo de creación de nuevo evento con base de datos conectado.')" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+          + Crear Evento
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wider">
+              <th class="py-3 px-4">Evento / Submarca</th>
+              <th class="py-3 px-4">Ubicación</th>
+              <th class="py-3 px-4">Estado</th>
+              <th class="py-3 px-4 text-right">Herramientas</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-800 text-sm">
+            <tr>
+              <td class="py-4 px-4 font-semibold">Lanzamiento Oficial NIX RTD's Chilcano</td>
+              <td class="py-4 px-4 text-gray-300">Huamanga, Ayacucho</td>
+              <td class="py-4 px-4"><span class="bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full text-xs font-medium border border-emerald-500/20">Activo</span></td>
+              <td class="py-4 px-4 text-right">
+                <button onclick="alert('Editando evento NIX')" class="text-indigo-400 hover:text-indigo-300 font-medium mr-3">Editar</button>
+                <button onclick="alert('Abriendo escáner QR')" class="text-purple-400 hover:text-purple-300 font-medium">Validar Accesos</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="py-4 px-4 font-semibold">Feria de Degustación Chocotejas Luz</td>
+              <td class="py-4 px-4 text-gray-300">Ayacucho Centro</td>
+              <td class="py-4 px-4"><span class="bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-full text-xs font-medium border border-purple-500/20">Programado</span></td>
+              <td class="py-4 px-4 text-right">
+                <button onclick="alert('Editando evento Luz')" class="text-indigo-400 hover:text-indigo-300 font-medium mr-3">Editar</button>
+                <button onclick="alert('Abriendo escáner QR')" class="text-purple-400 hover:text-purple-300 font-medium">Validar Accesos</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Cargar datos del organizador autenticado en pantalla
+    document.getElementById('displayOrgName').innerText = localStorage.getItem('vpass_org_name') || 'Organizador ESKORP';
+    document.getElementById('displayOrgPlan').innerText = localStorage.getItem('vpass_org_plan') || 'Plan Activo';
+
+    function logoutSession() {
+      localStorage.removeItem('vpass_is_logged');
+      localStorage.removeItem('vpass_org_name');
+      localStorage.removeItem('vpass_org_plan');
+      localStorage.removeItem('vpass_org_email');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
