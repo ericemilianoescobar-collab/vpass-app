@@ -1,997 +1,199 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V-PASS | ESKCORP Technology - Control de Entradas QR</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #08080a;
-            --card-bg: #121216;
-            --accent-neon: #00ffcc;
-            --accent-neon-glow: rgba(0, 255, 204, 0.3);
-            --text-color: #f4f4f6;
-            --text-muted: #9b9ba7;
-            --border-color: #23232f;
-            --whatsapp-color: #25d366;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* HEADER */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            background-color: rgba(8, 8, 10, 0.95);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-            letter-spacing: 1px;
-        }
-
-        .logo-text span {
-            color: var(--accent-neon);
-            text-shadow: 0 0 12px var(--accent-neon-glow);
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--accent-neon);
-            color: var(--accent-neon);
-            box-shadow: 0 0 10px var(--accent-neon-glow);
-        }
-
-        .btn-neon {
-            background: var(--accent-neon);
-            color: #000;
-            border: none;
-            box-shadow: 0 0 15px var(--accent-neon-glow);
-        }
-
-        .btn-neon:hover {
-            background: #00b38f;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
-        }
-
-        /* HERO SECTION */
-        .hero {
-            text-align: center;
-            padding: 70px 20px 30px 20px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background: rgba(0, 255, 204, 0.1);
-            color: var(--accent-neon);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0, 255, 204, 0.2);
-        }
-
-        .hero h1 {
-            font-size: 2.8rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            line-height: 1.2;
-        }
-
-        .hero h1 span {
-            color: var(--accent-neon);
-            text-shadow: 0 0 20px var(--accent-neon-glow);
-        }
-
-        .hero p {
-            color: var(--text-muted);
-            font-size: 1.05rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        /* PRICING SECTION - HORIZONTAL GRID */
-        .pricing-section {
-            max-width: 1200px;
-            margin: 20px auto 60px auto;
-            padding: 0 20px;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 40px;
-            font-weight: 700;
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Forzado en 3 columnas horizontales */
-            gap: 25px;
-        }
-
-        .pricing-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 35px 25px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .pricing-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--accent-neon);
-            box-shadow: 0 15px 35px rgba(0, 255, 204, 0.1);
-        }
-
-        .pricing-card.featured {
-            border-color: var(--accent-neon);
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.12);
-        }
-
-        .popular-badge {
-            position: absolute;
-            top: -12px;
-            right: 25px;
-            background: var(--accent-neon);
-            color: #000;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 20px;
-            text-transform: uppercase;
-        }
-
-        .plan-name {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .plan-price {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--accent-neon);
-            margin-bottom: 20px;
-        }
-
-        .plan-price span {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .plan-features {
-            list-style: none;
-            margin-bottom: 30px;
-            flex-grow: 1;
-        }
-
-        .plan-features li {
-            padding: 10px 0;
-            color: var(--text-muted);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            font-size: 0.9rem;
-        }
-
-        .plan-features li strong {
-            color: var(--text-color);
-        }
-
-        .btn-whatsapp {
-            background-color: var(--whatsapp-color);
-            color: #fff;
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .btn-whatsapp:hover {
-            background-color: #20ba5a;
-            box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
-        }
-
-        /* MODALES DE LOGIN Y VALIDADOR */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 35px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-        }
-
-        .modal-content h3 {
-            margin-bottom: 15px;
-            color: var(--accent-neon);
-            font-size: 1.4rem;
-            text-align: center;
-        }
-
-        .modal-content p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            text-align: center;
-            line-height: 1.5;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            background: #08080a;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-color);
-            font-size: 0.95rem;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--accent-neon);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 12px;
-            background: var(--accent-neon);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: 0.3s;
-        }
-
-        .btn-submit:hover {
-            background: #00b38f;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 1.5rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-
-        .close-modal:hover {
-            color: var(--text-color);
-        }
-
-        /* FOOTER */
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: var(--card-bg);
-            border-top: 1px solid var(--border-color);
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: auto;
-        }
-
-        /* Responsive para celulares (pasa a una columna vertical si la pantalla es pequeña) */
-        @media (max-width: 900px) {
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-            header {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
-            }
-            .hero h1 {
-                font-size: 2rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V-PASS | Control de Accesos Corporativo - ESKORP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-purple-500 selection:text-white">
 
-    <!-- HEADER -->
-    <header>
-        <a href="#" class="logo-container" onclick="location.reload();">
-            <div class="logo-text">V-PASS<span>.</span></div>
+  <!-- Navegación -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-xl font-black bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">V-PASS</span>
+        <span class="text-xs bg-purple-950 text-purple-300 px-2.5 py-1 rounded-full border border-purple-800/60 font-mono">ESKORP</span>
+      </div>
+      <div class="hidden md:flex items-center space-x-8 text-sm text-slate-300">
+        <a href="#inicio" class="hover:text-white transition-colors">Inicio</a>
+        <a href="#planes" class="hover:text-white transition-colors">Planes y Precios</a>
+        <a href="#submarcas" class="hover:text-white transition-colors">Ecosistema NIX & Luz</a>
+      </div>
+      <div>
+        <button onclick="openLoginModal()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-purple-600/20 transition-all">
+          Iniciar Sesión
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="inicio" class="pt-32 pb-20 md:pt-44 md:pb-32 px-6 relative overflow-hidden">
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 blur-[140px] rounded-full pointer-events-none"></div>
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <span class="text-xs uppercase tracking-widest text-indigo-400 font-bold bg-indigo-950/60 border border-indigo-800/50 px-3.5 py-1.5 rounded-full">
+        Tecnología de Validación QR Avanzada
+      </span>
+      <h1 class="text-4xl md:text-6xl font-black mt-6 tracking-tight leading-tight">
+        Control total de accesos para tus <span class="bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-400 bg-clip-text text-transparent">eventos y marcas</span>
+      </h1>
+      <p class="text-slate-400 mt-6 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+        Gestiona entradas, valida accesos en tiempo real con multidispositivos y mantén sincronizadas tus operaciones comerciales corporativas desde Ayacucho para el mundo.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+        <a href="#planes" class="bg-white text-slate-950 hover:bg-slate-200 font-bold px-8 py-3.5 rounded-xl text-sm transition-all shadow-xl">
+          Ver Planes y Tarifas
         </a>
-        <div class="nav-buttons">
-            <button class="btn btn-outline" onclick="openValidadorModal()">Validador</button>
-            <button class="btn btn-outline" onclick="openLoginModal()">Iniciar Sesión</button>
-            <a href="https://wa.me/51921543755?text=Hola,%20deseo%20registrarme%20en%20V-PASS%20para%20obtener%20mi%20usuario%20y%20contraseña." class="btn btn-neon" target="_blank">Regístrate</a>
-        </div>
-    </header>
-
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="hero-badge">ESKCORP V-PASS Technology</div>
-        <h1>Control de Accesos QR <span>Seguro y Confiable</span></h1>
-        <p>Compara nuestros planes diseñados para garantizar eventos sin fraudes ni duplicidades en Ayacucho y todo el Perú.</p>
-    </section>
-
-    <!-- PRICING SECTION (HORIZONTAL) -->
-    <section class="pricing-section" id="planes">
-        <h2 class="section-title">Elige tu Plan</h2>
-        <div class="pricing-grid">
-            
-            <!-- PLAN BÁSICO -->
-            <div class="pricing-card">
-                <div class="plan-name">Plan Básico</div>
-                <div class="plan-price">S/ 100 <span>/ evento</span></div>
-                <ul class="plan-features">
-                    <li><strong>250</strong> entradas disponibles</li>
-                    <li><strong>1</strong> validador asignado</li>
-                    <li>Control mediante código QR</li>
-                    <li>Registro de ingresos en tiempo real</li>
-                </ul>
-                <a href="https://wa.me/51921543755?text=Hola,%20estoy%20interesado%20en%20contratar%20el%20Plan%20Básico%20(S/%20100)." class="btn-whatsapp" target="_blank">
-                    Contratar por WhatsApp
-                </a>
-            </div>
-
-            <!-- PLAN ESTÁNDAR -->
-            <div class="pricing-card">
-                <div class="plan-name">Plan Estándar</div>
-                <div class="plan-price">S/ 150 <span>/ evento</span></div>
-                <ul class="plan-features">
-                    <li><strong>350</strong> entradas disponibles</li>
-                    <li><strong>3</strong> validadores asignados</li>
-                    <li>Control mediante código QR</li>
-                    <li>Gestión rápida y segura</li>
-                </ul>
-                <a href="https://wa.me/51921543755?text=Hola,%20estoy%20interesado%20en%20contratar%20el%20Plan%20Estándar%20(S/%20150)." class="btn-whatsapp" target="_blank">
-                    Contratar por WhatsApp
-                </a>
-            </div>
-
-            <!-- PLAN PREMIUM -->
-            <div class="pricing-card featured">
-                <div class="popular-badge">Recomendado</div>
-                <div class="plan-name">Plan Premium</div>
-                <div class="plan-price">S/ 250 <span>/ evento</span></div>
-                <ul class="plan-features">
-                    <li><strong>Entradas ilimitadas</strong></li>
-                    <li><strong>5</strong> validadores asignados</li>
-                    <li><strong>Reporte detallado</strong> post-evento (24h)</li>
-                    <li>Soporte VIP prioritario</li>
-                </ul>
-                <a href="https://wa.me/51921543755?text=Hola,%20estoy%20interesado%20en%20contratar%20el%20Plan%20Premium%20(S/%20250)." class="btn-whatsapp" target="_blank">
-                    Contratar por WhatsApp
-                </a>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- MODAL INICIAR SESIÓN -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal('loginModal')">&times;</button>
-            <h3>Iniciar Sesión</h3>
-            <p>Ingresa el correo y contraseña facilitados por ESKCORP.</p>
-            <form onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label>Correo Electrónico</label>
-                    <input type="email" id="loginEmail" placeholder="organizador@vpass.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="loginPass" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-submit">Ingresar al Panel</button>
-            </form>
-        </div>
+        <button onclick="openLoginModal()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-white font-semibold px-8 py-3.5 rounded-xl text-sm transition-all">
+          Acceso Organizadores
+        </button>
+      </div>
     </div>
+  </section>
 
-    <!-- MODAL VALIDADOR -->
-    <div class="modal" id="validadorModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal('validadorModal')">&times;</button>
-            <h3>Acceso Validador</h3>
-            <p>Ingresa las credenciales de validador asignadas para este evento (Hasta 5 por organizador).</p>
-            <form onsubmit="handleValidadorLogin(event)">
-                <div class="form-group">
-                    <label>Código de Validador / Usuario</label>
-                    <input type="text" id="valUser" placeholder="validador01@evento" required>
-                </div>
-                <div class="form-group">
-                    <label>Contraseña del Validador</label>
-                    <input type="password" id="valPass" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-submit">Iniciar Escaneo</button>
-            </form>
+  <!-- Sección de Planes (Perfectamente HORIZONTALES y limpias) -->
+  <section id="planes" class="py-20 px-6 bg-slate-900/40 border-t border-b border-slate-800/60">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl font-bold">Planes Diseñados a tu Medida</h2>
+        <p class="text-slate-400 text-sm mt-2">Selecciona la capacidad ideal para tus eventos corporativos o comerciales.</p>
+      </div>
+
+      <!-- Contenedor HORIZONTAL de 3 columnas -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        
+        <!-- Plan Básico -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 flex flex-col justify-between hover:border-purple-500/50 transition-all shadow-lg">
+          <div>
+            <span class="text-xs font-mono text-purple-400 uppercase tracking-widest font-semibold">Inicial</span>
+            <h3 class="text-xl font-bold mt-2">Plan Básico</h3>
+            <p class="text-slate-400 text-xs mt-1">Ideal para pequeños eventos y emprendimientos de confitería (Ej. Submarca Luz).</p>
+            <div class="my-6">
+              <span class="text-4xl font-black">S/ 99</span>
+              <span class="text-slate-400 text-xs"> / evento</span>
+            </div>
+            <ul class="space-y-3 text-sm text-slate-300">
+              <li class="flex items-center gap-2">✓ Hasta 500 asistentes</li>
+              <li class="flex items-center gap-2">✓ Validador QR básico</li>
+              <li class="flex items-center gap-2">✓ Soporte por correo</li>
+            </ul>
+          </div>
+          <button onclick="openLoginModal()" class="mt-8 w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-semibold text-sm transition-all">
+            Solicitar Plan
+          </button>
         </div>
+
+        <!-- Plan Estándar -->
+        <div class="bg-slate-900 border-2 border-purple-500/80 rounded-2xl p-8 flex flex-col justify-between relative shadow-xl shadow-purple-950/30">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+            Más Popular
+          </div>
+          <div>
+            <span class="text-xs font-mono text-indigo-400 uppercase tracking-widest font-semibold">Profesional</span>
+            <h3 class="text-xl font-bold mt-2">Plan Estándar</h3>
+            <p class="text-slate-400 text-xs mt-1">Perfecto para lanzamientos de bebidas RTD y eventos medianos (Ej. NIX).</p>
+            <div class="my-6">
+              <span class="text-4xl font-black">S/ 249</span>
+              <span class="text-slate-400 text-xs"> / evento</span>
+            </div>
+            <ul class="space-y-3 text-sm text-slate-300">
+              <li class="flex items-center gap-2">✓ Hasta 2,000 asistentes</li>
+              <li class="flex items-center gap-2">✓ Multidispositivo simultáneo</li>
+              <li class="flex items-center gap-2">✓ Reportes de acceso en tiempo real</li>
+              <li class="flex items-center gap-2">✓ Sincronización con RUC</li>
+            </ul>
+          </div>
+          <button onclick="openLoginModal()" class="mt-8 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white py-3 rounded-xl font-semibold text-sm transition-all shadow-lg">
+            Solicitar Plan
+          </button>
+        </div>
+
+        <!-- Plan Premium -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 flex flex-col justify-between hover:border-purple-500/50 transition-all shadow-lg">
+          <div>
+            <span class="text-xs font-mono text-pink-400 uppercase tracking-widest font-semibold">Corporativo</span>
+            <h3 class="text-xl font-bold mt-2">Plan Premium</h3>
+            <p class="text-slate-400 text-xs mt-1">Acceso ilimitado para macro eventos y control total de múltiples submarcas.</p>
+            <div class="my-6">
+              <span class="text-4xl font-black">S/ 499</span>
+              <span class="text-slate-400 text-xs"> / mes ilimitado</span>
+            </div>
+            <ul class="space-y-3 text-sm text-slate-300">
+              <li class="flex items-center gap-2">✓ Asistentes ilimitados</li>
+              <li class="flex items-center gap-2">✓ Soporte técnico prioritario 24/7</li>
+              <li class="flex items-center gap-2">✓ Múltiples submarcas vinculadas</li>
+              <li class="flex items-center gap-2">✓ Panel personalizado ESKORP</li>
+            </ul>
+          </div>
+          <button onclick="openLoginModal()" class="mt-8 w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl font-semibold text-sm transition-all">
+            Solicitar Plan
+          </button>
+        </div>
+
+      </div>
     </div>
+  </section>
 
-    <!-- FOOTER -->
-    <footer>
-        <p>&copy; 2026 ESKCORP V-PASS Technology. Todos los derechos reservados.</p>
-    </footer>
+  <!-- Modal de Login -->
+  <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl w-full max-w-md shadow-2xl relative text-white">
+      <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      
+      <div class="text-center mb-6">
+        <h3 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">Acceso Organizadores</h3>
+        <p class="text-xs text-slate-400 mt-1">Ingresa tus credenciales autorizadas por ESKORP</p>
+      </div>
 
-    <!-- SCRIPT DE CONTROL -->
-    <script>
-        function openLoginModal() {
-            document.getElementById('loginModal').style.display = 'flex';
-        }
+      <form id="loginForm" onsubmit="handleIndexLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Correo Electrónico</label>
+          <input type="email" id="modalEmail" required placeholder="organizador@eskorp.com" 
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Contraseña</label>
+          <input type="password" id="modalPassword" required placeholder="••••••••" 
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 text-sm">
+        </div>
+        
+        <div id="modalError" class="text-red-400 text-xs text-center hidden bg-red-500/10 border border-red-500/20 py-2 rounded">
+          Credenciales incorrectas o acceso no autorizado.
+        </div>
 
-        function openValidadorModal() {
-            document.getElementById('validadorModal').style.display = 'flex';
-        }
+        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all duration-200">
+          Ingresar al Panel
+        </button>
+      </form>
+    </div>
+  </div>
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
+  <footer class="py-8 text-center text-xs text-slate-500 border-t border-slate-900">
+    &copy; 2026 ESKORP / V-PASS. Todos los derechos reservados. Ayacucho, Huamanga.
+  </footer>
 
-        function handleLogin(event) {
-            event.preventDefault();
-            alert("Acceso simulado con éxito. (Aquí conectaremos la base de datos de organizadores).");
-            closeModal('loginModal');
-        }
-
-        function handleValidadorLogin(event) {
-            event.preventDefault();
-            alert("Acceso de validador correcto. (Aquí se abrirá la interfaz de cámara y escaneo QR).");
-            closeModal('validadorModal');
-        }
-
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
-        }
-    </script>
+  <!-- Archivo centralizado de autenticación y lógica -->
+  <script src="js/auth.js"></script>
+  <script>
+    function openLoginModal() {
+      document.getElementById('loginModal').classList.remove('hidden');
+    }
+    function closeLoginModal() {
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('modalError').classList.add('hidden');
+    }
+    function handleIndexLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('modalEmail').value.trim();
+      const pass = document.getElementById('modalPassword').value.trim();
+      
+      const success = authenticateOrganizer(email, pass);
+      if (success) {
+        window.location.href = 'panel.html';
+      } else {
+        document.getElementById('modalError').classList.remove('hidden');
+      }
+    }
+  </script>
 </body>
-=======
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V-PASS | ESKCORP Technology - Control de Entradas QR y Gestión Privada</title>
-    <!-- Google Fonts: Poppins para un look profesional y moderno -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #08080a;
-            --card-bg: #121216;
-            --accent-neon: #00ffcc;
-            --accent-neon-glow: rgba(0, 255, 204, 0.3);
-            --text-color: #f4f4f6;
-            --text-muted: #9b9ba7;
-            --border-color: #23232f;
-            --whatsapp-color: #25d366;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* HEADER */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            background-color: rgba(8, 8, 10, 0.95);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-            letter-spacing: 1px;
-        }
-
-        .logo-text span {
-            color: var(--accent-neon);
-            text-shadow: 0 0 12px var(--accent-neon-glow);
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--accent-neon);
-            color: var(--accent-neon);
-            box-shadow: 0 0 10px var(--accent-neon-glow);
-        }
-
-        .btn-neon {
-            background: var(--accent-neon);
-            color: #000;
-            border: none;
-            box-shadow: 0 0 15px var(--accent-neon-glow);
-        }
-
-        .btn-neon:hover {
-            background: #00b38f;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
-        }
-
-        /* HERO SECTION (Psicología de impacto y claridad) */
-        .hero {
-            text-align: center;
-            padding: 90px 20px 50px 20px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background: rgba(0, 255, 204, 0.1);
-            color: var(--accent-neon);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0, 255, 204, 0.2);
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-        }
-
-        .hero h1 span {
-            color: var(--accent-neon);
-            text-shadow: 0 0 20px var(--accent-neon-glow);
-        }
-
-        .hero p {
-            color: var(--text-muted);
-            font-size: 1.15rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        /* PRICING SECTION */
-        .pricing-section {
-            max-width: 1200px;
-            margin: 30px auto 80px auto;
-            padding: 0 20px;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.2rem;
-            margin-bottom: 50px;
-            font-weight: 700;
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-        }
-
-        .pricing-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 40px 30px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .pricing-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--accent-neon);
-            box-shadow: 0 15px 35px rgba(0, 255, 204, 0.1);
-        }
-
-        .pricing-card.featured {
-            border-color: var(--accent-neon);
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.12);
-        }
-
-        .popular-badge {
-            position: absolute;
-            top: -12px;
-            right: 30px;
-            background: var(--accent-neon);
-            color: #000;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 20px;
-            text-transform: uppercase;
-        }
-
-        .plan-name {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .plan-price {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: var(--accent-neon);
-            margin-bottom: 25px;
-        }
-
-        .plan-price span {
-            font-size: 1rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .plan-features {
-            list-style: none;
-            margin-bottom: 35px;
-            flex-grow: 1;
-        }
-
-        .plan-features li {
-            padding: 12px 0;
-            color: var(--text-muted);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            font-size: 0.95rem;
-        }
-
-        .plan-features li strong {
-            color: var(--text-color);
-        }
-
-        .btn-whatsapp {
-            background-color: var(--whatsapp-color);
-            color: #fff;
-            text-align: center;
-            padding: 14px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-whatsapp:hover {
-            background-color: #20ba5a;
-            box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
-            transform: scale(1.02);
-        }
-
-        /* MODAL INFORMATIVO DE SEGURIDAD */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 40px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 420px;
-            text-align: center;
-            position: relative;
-        }
-
-        .modal-content h3 {
-            margin-bottom: 15px;
-            color: var(--accent-neon);
-            font-size: 1.5rem;
-        }
-
-        .modal-content p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 1.5rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-
-        .close-modal:hover {
-            color: var(--text-color);
-        }
-
-        /* FOOTER */
-        footer {
-            text-align: center;
-            padding: 25px;
-            background-color: var(--card-bg);
-            border-top: 1px solid var(--border-color);
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: auto;
-        }
-
-        @media (max-width: 768px) {
-            header {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-            .hero h1 {
-                font-size: 2.2rem;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- HEADER -->
-    <header>
-        <a href="#" class="logo-container" onclick="location.reload();">
-            <div class="logo-text">V-PASS<span>.</span></div>
-        </a>
-        <div class="nav-buttons">
-            <button class="btn btn-outline" onclick="openValidadorInfo()">Validador</button>
-            <button class="btn btn-outline" onclick="openLoginInfo()">Iniciar Sesión</button>
-            <a href="https://wa.me/51921543755?text=Hola,%20deseo%20registrarme%20en%20V-PASS%20para%20obtener%20mi%20usuario%20y%20contraseña." class="btn btn-neon" target="_blank">Regístrate</a>
-        </div>
-    </header>
-
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="hero-badge">ESKCORP V-PASS Technology</div>
-        <h1>Control de Accesos QR <span>Seguro y Confiable</span></h1>
-        <p>Agencia especializada en validación rápida de entradas online. Conectado en tiempo real con WhatsApp para garantizar eventos sin fraudes ni duplicidades.</p>
-    </section>
-
-    <!-- PRICING SECTION -->
-    <section class="pricing-section" id="planes">
-        <h2 class="section-title">Elige el Plan para tu Evento</h2>
-        <div class="pricing-grid">
-            
-            <!-- PLAN BÁSICO -->
-            <div class="pricing-card">
-                <div class="plan-name">Plan Básico</div>
-                <div class="plan-price">S/ 100 <span>/ evento</span></div>
-                <ul class="plan-features">
-                    <li><strong>250</strong> entradas disponibles</li>
-                    <li><strong>1</strong> validador asignado</li>
-                    <li>Control mediante código QR</li>
-                    <li>Registro de ingresos en tiempo real</li>
-                </ul>
-                <a href="https://wa.me/51921543755?text=Hola,%20estoy%20interesado%20en%20contratar%20el%20Plan%20Básico%20(S/%20100)." class="btn-whatsapp" target="_blank">
-                    Contratar por WhatsApp
-                </a>
-            </div>
-
-            <!-- PLAN ESTÁNDAR -->
-            <div class="pricing-card">
-                <div class="plan-name">Plan Estándar</div>
-                <div class="plan-price">S/ 150 <span>/ evento</span></div>
-                <ul class="plan-features">
-                    <li><strong>350</strong> entradas disponibles</li>
-                    <li><strong>3</strong> validadores asignados</li>
-                    <li>Control mediante código QR</li>
-                    <li>Gestión rápida para eventos medianos</li>
-                </ul>
-                <a href="https://wa.me/51921543755?text=Hola,%20estoy%20interesado%20en%20contratar%20el%20Plan%20Estándar%20(S/%20150)." class="btn-whatsapp" target="_blank">
-                    Contratar por WhatsApp
-                </a>
-            </div>
-
-            <!-- PLAN PREMIUM -->
-            <div class="pricing-card featured">
-                <div class="popular-badge">Más Popular</div>
-                <div class="plan-name">Plan Premium</div>
-                <div class="plan-price">S/ 250 <span>/ evento</span></div>
-                <ul class="plan-features">
-                    <li><strong>Entradas ilimitadas</strong></li>
-                    <li><strong>5</strong> validadores asignados</li>
-                    <li><strong>Reporte detallado</strong> post-evento (24h)</li>
-                    <li>Soporte VIP prioritario</li>
-                </ul>
-                <a href="https://wa.me/51921543755?text=Hola,%20estoy%20interesado%20en%20contratar%20el%20Plan%20Premium%20(S/%20250)." class="btn-whatsapp" target="_blank">
-                    Contratar por WhatsApp
-                </a>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- MODAL DE ACCESO / SEGURIDAD -->
-    <div class="modal" id="infoModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModal()">&times;</button>
-            <h3 id="modalTitle">Seguridad V-PASS</h3>
-            <p id="modalText">Para proteger tu cuenta y evitar accesos no autorizados, las credenciales son entregadas directamente por nuestro equipo tras el registro.</p>
-            <a href="https://wa.me/51921543755?text=Hola,%20necesito%20soporte%20con%20mis%20accesos%20a%20V-PASS." class="btn-whatsapp" target="_blank">
-                Contactar por WhatsApp
-            </a>
-        </div>
-    </div>
-
-    <!-- FOOTER -->
-    <footer>
-        <p>&copy; 2026 ESKCORP V-PASS Technology. Todos los derechos reservados.</p>
-    </footer>
-
-    <!-- SCRIPT DE CONTROL -->
-    <script>
-        const modal = document.getElementById('infoModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalText = document.getElementById('modalText');
-
-        function openLoginInfo() {
-            modalTitle.innerText = "Iniciar Sesión";
-            modalText.innerText = "Tu cuenta y contraseña son configuradas de forma segura por nosotros al adquirir tu plan. Escríbenos si requieres recuperar tus datos.";
-            modal.style.display = 'flex';
-        }
-
-        function openValidadorInfo() {
-            modalTitle.innerText = "Acceso Validador";
-            modalText.innerText = "El portal de escaneo QR está restringido al personal autorizado asignado en tu evento. Solicita tus accesos vía WhatsApp.";
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            modal.style.display = 'none';
-        }
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-    </script>
-</body>
->>>>>>> b70fcddd618b0f6b9a6e8eba9a7770375a97a384
 </html>
