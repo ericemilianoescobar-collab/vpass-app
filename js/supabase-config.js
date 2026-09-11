@@ -1,14 +1,24 @@
-// Configuración global de Supabase
+// Inicialización segura de Supabase
 const SUPABASE_URL = 'https://bkvjrzzufqqvyuhytvc.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable__gFLNEd1OZWH8E_jeTmM2w_kTisJ...'; 
 
-// Inicialización directa mediante el script global de la CDN
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Verificamos que la librería de Supabase esté cargada globalmente
+function getSupabaseClient() {
+    if (window.supabase && window.supabase.createClient) {
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    return null;
+}
 
-// Login de Organizador global
+// Login de Organizador
 window.loginOrganizador = async function(email, password) {
     try {
-        const { data, error } = await supabase
+        const client = getSupabaseClient();
+        if (!client) {
+            return { success: false, message: "Error: La librería de Supabase no cargó correctamente." };
+        }
+
+        const { data, error } = await client
             .from('organizadores')
             .select('*')
             .eq('email', email.trim())
@@ -40,10 +50,15 @@ window.loginOrganizador = async function(email, password) {
     }
 };
 
-// Login de Validador global
+// Login de Validador
 window.loginValidador = async function(email, password) {
     try {
-        const { data, error } = await supabase
+        const client = getSupabaseClient();
+        if (!client) {
+            return { success: false, message: "Error: La librería de Supabase no cargó correctamente." };
+        }
+
+        const { data, error } = await client
             .from('validadores')
             .select('*')
             .eq('email', email.trim())
