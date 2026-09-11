@@ -74,18 +74,18 @@
             <span class="text-[10px] font-mono uppercase text-purple-300 tracking-wider">Licencia de Evento V-PASS</span>
             <span id="badgeEstadoCanje" class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">Activo</span>
           </div>
-          <div class="text-lg font-bold text-slate-200 mt-1">Emisión de Pases Ilimitados</div>
+          <div class="text-lg font-bold text-slate-200 mt-1" id="nombreEventoLabelCard">Emisión de Pases Ilimitados</div>
         </div>
         <button id="btnAbrirModal" onclick="abrirModalConfig()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
-          ⚡ Configurar / Ver Ajustes del Evento
+          ⚙️ Ver Configuración del Evento
         </button>
       </div>
     </div>
 
-    <!-- Sección Principal del Panel -->
+    <!-- Sección Principal del Panel (Limpia y Centrada en Emisión) -->
     <div id="seccionPanelPrincipal" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
       
-      <!-- Emisión y Tabla -->
+      <!-- Emisión de Pases -->
       <div class="lg:col-span-6 space-y-6">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
           <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -93,7 +93,7 @@
               <span>🎟️</span>
               <span>Emisión de Pases Individuales</span>
             </h2>
-            <button onclick="abrirModalConfig()" class="text-xs text-purple-400 hover:underline font-semibold">⚙️ Ajustes del Evento</button>
+            <button onclick="abrirModalConfig()" class="text-xs text-purple-400 hover:underline font-semibold">⚙️ Ver Detalles del Evento</button>
           </div>
 
           <div class="space-y-3">
@@ -110,21 +110,23 @@
             </button>
           </div>
         </div>
+      </div>
 
-        <!-- Tabla -->
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
-          <h3 class="text-sm font-bold text-white flex items-center justify-between">
+      <!-- Tabla de Asistentes -->
+      <div class="lg:col-span-6 space-y-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+        <div class="space-y-4">
+          <h3 class="text-sm font-bold text-white flex items-center justify-between border-b border-slate-800 pb-3">
             <span>📋 Asistentes Registrados</span>
             <span id="contadorInvitados" class="text-xs bg-slate-800 text-purple-400 px-2.5 py-1 rounded-full font-mono">0 Asistentes</span>
           </h3>
           
-          <div class="overflow-x-auto max-h-[320px] overflow-y-auto">
+          <div class="overflow-x-auto max-h-[340px] overflow-y-auto">
             <table class="w-full text-left text-xs text-slate-300">
               <thead class="bg-slate-950 text-slate-400 uppercase font-mono text-[10px] sticky top-0">
                 <tr>
                   <th class="p-3">Nombre</th>
                   <th class="p-3">WhatsApp</th>
-                  <th class="p-3 text-right">Acciones de Descarga</th>
+                  <th class="p-3 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody id="tablaInvitadosBody" class="divide-y divide-slate-800">
@@ -135,44 +137,28 @@
             </table>
           </div>
         </div>
-      </div>
-
-      <!-- Vista Previa del Flyer Principal -->
-      <div class="lg:col-span-6 space-y-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center">
-        <div class="w-full flex justify-between items-center border-b border-slate-800 pb-3">
-          <h3 class="text-sm font-bold text-white flex items-center space-x-2">
-            <span>🖼️</span>
-            <span>Diseño Oficial del Evento</span>
-          </h3>
-          <span class="text-xs text-purple-400 font-mono">Activo</span>
-        </div>
-
-        <div class="relative w-full max-w-sm aspect-[4/5] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl flex items-center justify-center">
-          <span id="mensajePlaceholderFlyer" class="text-slate-500 text-xs text-center p-4">Configura tu evento y sube tu flyer para visualizarlo.</span>
-          <canvas id="canvasPreviewPrincipal" class="w-full h-full object-contain hidden"></canvas>
-        </div>
-        <p class="text-[11px] text-slate-400 text-center">Así luce el pase configurado con el código QR y tipografía estética.</p>
+        <p class="text-[11px] text-slate-500 text-center pt-2">Envía las invitaciones directamente por WhatsApp con enlace interactivo de descarga.</p>
       </div>
 
     </div>
 
   </div>
 
-  <!-- Modal de Configuración con Previsualización en Vivo y Paralela -->
+  <!-- Modal de Configuración (Bloqueado tras primer registro con éxito) -->
   <div id="modalConfig" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
       
       <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-950">
         <h3 class="text-sm font-bold text-white flex items-center space-x-2">
           <span>⚙️</span>
-          <span>Ajustes del Evento y Calibración Visual en Vivo</span>
+          <span id="modalTitleText">Ajustes del Evento y Calibración Visual en Vivo</span>
         </h3>
         <button onclick="cerrarModalConfig()" class="text-slate-400 hover:text-white text-sm">✕</button>
       </div>
 
       <div class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-12 gap-6">
         
-        <!-- Columna Izquierda: Controles del Formulario -->
+        <!-- Controles -->
         <div class="md:col-span-6 space-y-4">
           <div>
             <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Nombre del Evento</label>
@@ -199,7 +185,7 @@
             <label class="block text-xs uppercase tracking-wider text-purple-400 font-bold">Subir Flyer Oficial (Formato Vertical)</label>
             <input type="file" id="flyerInput" accept="image/*" onchange="cargarFlyerArchivoModal(event)" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer">
             
-            <div class="grid grid-cols-3 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <div class="grid grid-cols-3 gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800" id="slidersContenedor">
               <div>
                 <label class="block text-[10px] text-slate-400 mb-1">Eje X: <span id="valPosX">50</span>%</label>
                 <input type="range" id="rangePosX" min="10" max="90" value="50" oninput="actualizarPrevisualizacionEnVivo()" class="w-full accent-purple-500">
@@ -220,21 +206,21 @@
           </button>
         </div>
 
-        <!-- Columna Derecha: Previsualización Interactiva en Tiempo Real -->
+        <!-- Previsualización en Vivo -->
         <div class="md:col-span-6 bg-slate-950 border border-slate-800 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2">
           <span class="text-[11px] font-mono uppercase tracking-wider text-purple-400">Vista Previa Dinámica (En Vivo)</span>
           <div class="relative w-full max-w-[260px] aspect-[4/5] bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl flex items-center justify-center">
             <span id="mensajePlaceholderModal" class="text-slate-500 text-[11px] text-center p-4">Sube un flyer para calibrar tu QR.</span>
             <canvas id="canvasPreviewModal" class="w-full h-full object-contain hidden"></canvas>
           </div>
-          <span class="text-[10px] text-slate-500 text-center">Modifica los sliders y observa el resultado instantáneamente.</span>
+          <span class="text-[10px] text-slate-500 text-center" id="estadoBloqueoLeyenda">Una vez guardado, los datos principales quedarán bloqueados permanentemente.</span>
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- Canvas Oculto para Exportación de Alta Resolución -->
+  <!-- Canvas Oculto para Exportación -->
   <canvas id="canvasExportadorOculto" width="800" height="1000" style="display:none;"></canvas>
 
   <footer class="max-w-7xl mx-auto w-full pt-8 text-center text-xs text-slate-500 border-t border-slate-900">
@@ -276,28 +262,30 @@
       if (eventoGuardado) {
         mostrarPanelPrincipal();
         if (bloqueadoEnDB || eventoGuardado.bloqueado) {
-          bloquearCamposFormulario();
+          bloquearCamposFormularioPermanentemente();
         }
       } else {
         abrirModalConfig();
       }
     }
 
-    function bloquearCamposFormulario() {
+    function bloquearCamposFormularioPermanentemente() {
       document.getElementById('eventName').disabled = true;
       document.getElementById('eventDate').disabled = true;
       document.getElementById('eventTime').disabled = true;
       document.getElementById('eventLocation').disabled = true;
-      document.getElementById('badgeEstadoCanje').innerText = "Bloqueado / Canjeado";
+      document.getElementById('flyerInput').disabled = true;
+      document.getElementById('slidersContenedor').style.display = 'none';
+      document.getElementById('btnGuardarConfig').style.display = 'none';
+      document.getElementById('badgeEstadoCanje').innerText = "Bloqueado / Configurado";
       document.getElementById('badgeEstadoCanje').className = "text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded font-bold";
+      document.getElementById('nombreEventoLabelCard').innerText = eventoGuardado.name;
+      document.getElementById('modalTitleText').innerText = "Detalles del Evento (Bloqueado Permanentemente)";
+      document.getElementById('estadoBloqueoLeyenda').innerText = "Configuración activa y bloqueada contra modificaciones.";
     }
 
     function mostrarPanelPrincipal() {
       document.getElementById('seccionPanelPrincipal').classList.remove('hidden');
-      if (eventoGuardado && eventoGuardado.flyer) {
-        flyerBase64 = eventoGuardado.flyer;
-        renderizarFlyerEnCanvas('canvasPreviewPrincipal', "EJEMPLO-CODIGO-QR", eventoGuardado.posX, eventoGuardado.posY, eventoGuardado.size);
-      }
     }
 
     function abrirModalConfig() {
@@ -387,7 +375,6 @@
       location.reload();
     }
 
-    // Algoritmo Robusto Antifraude: 2 iniciales asistente + 2 iniciales evento + caracteres aleatorios seguros
     function generarTokenSeguroInteligente(nombreAsistente, nombreEvento) {
       const limpiarTexto = (str) => (str || "XX").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, "").toUpperCase();
       
@@ -446,8 +433,14 @@
 
       tbody.innerHTML = "";
       listaInvitados.forEach((inv, index) => {
-        const msg = encodeURIComponent(`Hola *${inv.guest}*, aquí tienes tu pase oficial para *${eventoGuardado.name}*. Código Antifraude: ${inv.token}. Presenta este código QR en puerta.`);
-        const waLink = `https://wa.me/${inv.phone}?text=${msg}`;
+        // Enlace inteligente para el asistente
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        const linkInvitacion = `${baseUrl}ver-entrada.html?org=${encodeURIComponent(companyName)}&token=${encodeURIComponent(inv.token)}`;
+
+        const ubicacionTexto = (eventoGuardado.location && eventoGuardado.location.trim() !== "") ? eventoGuardado.location : "por confirmar";
+        
+        const textoWsp = `Hola *${inv.guest}*, esta es tu entrada para el evento *${eventoGuardado.name}*.\n📅 Fecha: ${eventoGuardado.date}\n⏰ Hora: ${eventoGuardado.time}\n📍 Ubicación: ${ubicacionTexto}\n\nPuedes ver y descargar tu invitación digital aquí:\n${linkInvitacion}`;
+        const waLink = `https://wa.me/${inv.phone}?text=${encodeURIComponent(textoWsp)}`;
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-950/50 transition-colors";
@@ -473,7 +466,6 @@
       }
     }
 
-    // Motor de Renderizado Gráfico en Canvas (Con QR y Código Visible Estético Abajo)
     function renderizarFlyerEnCanvas(canvasId, textoCodigo, posXVal, posYVal, sizeVal) {
       const canvas = document.getElementById(canvasId);
       const ctx = canvas.getContext('2d');
@@ -487,14 +479,11 @@
         canvas.height = 1000;
         canvas.classList.remove('hidden');
         
-        const placeholderId = canvasId === 'canvasPreviewPrincipal' ? 'mensajePlaceholderFlyer' : 'mensajePlaceholderModal';
-        const placeholderElem = document.getElementById(placeholderId);
+        const placeholderElem = document.getElementById('mensajePlaceholderModal');
         if (placeholderElem) placeholderElem.classList.add('hidden');
 
-        // Dibujar Flyer Base
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        // Generar QR
         QRCode.toDataURL(textoCodigo, { width: 350, margin: 1 }, function (err, qrDataUrl) {
           if (err) return;
 
@@ -509,17 +498,14 @@
             const qrY = (canvas.height * posYPorc) - (sizeQR / 2);
             const extraHeight = 55;
 
-            // Fondo Blanco y Borde Morado Antifraude Corporativo
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(qrX - 14, qrY - 14, sizeQR + 28, sizeQR + extraHeight);
             ctx.strokeStyle = "#7c3aed";
             ctx.lineWidth = 8;
             ctx.strokeRect(qrX - 14, qrY - 14, sizeQR + 28, sizeQR + extraHeight);
 
-            // Dibujar QR
             ctx.drawImage(imgQR, qrX, qrY, sizeQR, sizeQR);
 
-            // Tipografía Estética para el Código Visible Inferior
             ctx.fillStyle = "#0f172a";
             ctx.font = "bold 20px monospace";
             ctx.textAlign = "center";
@@ -530,7 +516,6 @@
       };
     }
 
-    // Descarga Blindada de Imagen o PDF para el Asistente
     async function descargarEntrada(index, formato) {
       const inv = listaInvitados[index];
       if (!eventoGuardado || !eventoGuardado.flyer) {

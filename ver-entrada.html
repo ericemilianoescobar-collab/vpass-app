@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu Entrada Oficial | ESKORP V-PASS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 flex flex-col items-center justify-center selection:bg-purple-500 selection:text-white">
+
+  <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl space-y-6 text-center">
+    <div>
+      <span class="text-xs uppercase font-mono text-purple-400 tracking-wider">Pase Digital Verificado</span>
+      <h1 class="text-lg font-bold text-white mt-1" id="tituloEventoVista">Cargando Invitación...</h1>
+    </div>
+
+    <div class="relative w-full aspect-[4/5] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-inner flex items-center justify-center">
+      <canvas id="canvasPublico" class="w-full h-full object-contain"></canvas>
+    </div>
+
+    <div class="space-y-3">
+      <div id="infoAsistente" class="text-xs text-slate-300 font-mono"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="descargarPublico('imagen')" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
+          📥 Descargar Imagen
+        </button>
+        <button onclick="descargarPublico('pdf')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
+          📄 Descargar PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="canvasExportadorPublico" width="800" height="1000" style="display:none;"></canvas>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const org = urlParams.get('org');
+    const token = urlParams.get('token');
+
+    const evento = JSON.parse(localStorage.getItem('eskorp_evento_' + org));
+    const invitados = JSON.parse(localStorage.getItem('eskorp_invitados_' + org)) || [];
+    const invitado = invitados.find(i => i.token === token);
+
+    if (!evento || !invitado) {
+      document.body.innerHTML = `<div class="text-center text-red-400 font-bold p-6">Enlace de invitación inválido o caducado.</div>`;
+    } else {
+      document.getElementById('tituloEventoVista').innerText = evento.name;
+      document.getElementById('infoAsistente').innerText = `Asistente: ${invitado.guest}`;
+      renderizarCanvasPublico('canvasPublico');
+    }
+
+    function renderizarCanvasPublico(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = evento.flyer;
+
+      img.onload = () => {
+        canvas.width = 800;
+        canvas.height = 1000;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        QRCode.toDataURL(invitado.token, { width: 350, margin: 1 }, function (err, qrDataUrl) {
+          if (err) return;
+          const imgQR = new Image();
+          imgQR.src = qrDataUrl;
+          imgQR.onload = () => {
+            const posXPorc = parseFloat(evento.posX) / 100;
+            const posYPorc = parseFloat(evento.posY) / 100;
+            const sizeQR = parseFloat(evento.size) * 1.6;
+
+            const qrX = (canvas.width * posXPorc) - (sizeQR / 2);
+            const qrY = (canvas.height * posYPorc) - (sizeQR / 2);
+            const extraHeight = 55;
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(qrX - 14, qrY - 14, sizeQR + 28, sizeQR + extraHeight);
+            ctx.strokeStyle = "#7c3aed";
+            ctx.lineWidth = 8;
+            ctx.strokeRect(qrX - 14, qrY - 14, sizeQR + 28, sizeQR + extraHeight);
+
+            ctx.drawImage(imgQR, qrX, qrY, sizeQR, sizeQR);
+
+            ctx.fillStyle = "#0f172a";
+            ctx.font = "bold 20px monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(invitado.token, qrX + (sizeQR / 2), qrY + sizeQR + 28);
+          };
+        });
+      };
+    }
+
+    function descargarPublico(formato) {
+      const canvas = document.getElementById('canvasExportadorPublico');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = evento.flyer;
+
+      img.onload = () => {
+        canvas.width = 800;
+        canvas.height = 1000;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        QRCode.toDataURL(invitado.token, { width: 350, margin: 1 }, function (err, qrDataUrl) {
+          if (err) return;
+          const imgQR = new Image();
+          imgQR.src = qrDataUrl;
+          imgQR.onload = () => {
+            const posXPorc = parseFloat(evento.posX) / 100;
+            const posYPorc = parseFloat(evento.posY) / 100;
+            const sizeQR = parseFloat(evento.size) * 1.6;
+
+            const qrX = (canvas.width * posXPorc) - (sizeQR / 2);
+            const qrY = (canvas.height * posYPorc) - (sizeQR / 2);
+            const extraHeight = 55;
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(qrX - 14, qrY - 14, sizeQR + 28, sizeQR + extraHeight);
+            ctx.strokeStyle = "#7c3aed";
+            ctx.lineWidth = 8;
+            ctx.strokeRect(qrX - 14, qrY - 14, sizeQR + 28, sizeQR + extraHeight);
+
+            ctx.drawImage(imgQR, qrX, qrY, sizeQR, sizeQR);
+
+            ctx.fillStyle = "#0f172a";
+            ctx.font = "bold 20px monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(invitado.token, qrX + (sizeQR / 2), qrY + sizeQR + 28);
+
+            if (formato === 'imagen') {
+              const link = document.createElement('a');
+              link.download = `Entrada-${invitado.guest.replace(/\s+/g, '_')}.png`;
+              link.href = canvas.toDataURL('image/png');
+              link.click();
+            } else if (formato === 'pdf') {
+              const imgData = canvas.toDataURL('image/png');
+              const { jsPDF } = window.jspdf;
+              const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+              const pageWidth = pdf.internal.pageSize.getWidth();
+              const pageHeight = pdf.internal.pageSize.getHeight();
+              pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+              pdf.save(`Entrada-${invitado.guest.replace(/\s+/g, '_')}.pdf`);
+            }
+          };
+        });
+      };
+    }
+  </script>
+</body>
+</html>
