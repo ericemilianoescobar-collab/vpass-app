@@ -34,14 +34,12 @@
         </div>
       </a>
 
-      <!-- Conteo exacto de planes activos en sistema -->
+      <!-- Conteo exacto sincronizado con Supabase -->
       <div class="flex flex-wrap items-center gap-3">
         <div class="bg-slate-950 border border-slate-800 px-4 py-2 rounded-xl text-xs space-y-0.5">
-          <span class="text-slate-400 block text-[10px] uppercase font-mono">Planes Activos en Supabase</span>
+          <span class="text-slate-400 block text-[10px] uppercase font-mono">Estado de Plan en Supabase</span>
           <div class="flex items-center space-x-3 font-bold text-xs">
-            <span class="text-slate-300">Básico: <span id="countBasico" class="text-purple-400">0</span></span>
-            <span class="text-slate-300">Estándar: <span id="countEstandar" class="text-purple-400">0</span></span>
-            <span class="text-slate-300">Premium: <span id="countPremium" class="text-emerald-400">1</span></span>
+            <span class="text-slate-300">Plan Actual: <span id="statusPlanSupabase" class="text-purple-400">Verificando...</span></span>
           </div>
         </div>
         <button onclick="logout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition-colors">
@@ -80,14 +78,14 @@
         </button>
       </div>
 
-      <!-- Plan Premium (Activo) -->
+      <!-- Plan Premium / Canjeable -->
       <div id="cardPremiumWrapper" class="bg-slate-900/60 border border-purple-500 bg-purple-950/20 p-5 rounded-2xl flex flex-col justify-between space-y-4">
         <div>
           <div class="flex justify-between items-center">
-            <span class="text-[10px] font-mono uppercase text-purple-300 tracking-wider">Plan Premium (S/ 250)</span>
-            <span id="badgePremiumCount" class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">1 Activo</span>
+            <span class="text-[10px] font-mono uppercase text-purple-300 tracking-wider">Plan Activo</span>
+            <span id="badgePremiumCount" class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">Disponible</span>
           </div>
-          <div class="text-lg font-bold text-slate-200 mt-1">Ilimitado <span class="text-xs text-purple-400 font-normal">(5 Puertas)</span></div>
+          <div class="text-lg font-bold text-slate-200 mt-1" id="nombrePlanTarjeta">Plan Premium</div>
         </div>
         <button id="btnCanjearPremium" onclick="abrirModalCanje('Premium')" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
           ⚡ Canjear / Configurar Evento
@@ -95,7 +93,7 @@
       </div>
     </div>
 
-    <!-- Sección Inferior Única (Visible cuando ya hay evento configurado/canjeado) -->
+    <!-- Sección Inferior Única (Visible tras canjear el plan y configurar el evento) -->
     <div id="seccionInvitados" class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-2xl shadow-xl space-y-6 hidden">
       <div class="border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -152,9 +150,9 @@
       <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-950">
         <h3 class="text-sm font-bold text-white flex items-center space-x-2">
           <span>⚙️</span>
-          <span>Configuración del Evento y Diseño Flyer (A5)</span>
+          <span id="modalTitleText">Configuración del Evento y Diseño Flyer (A5)</span>
         </h3>
-        <button onclick="cerrarModalCanje()" class="text-slate-400 hover:text-white text-sm">✕</button>
+        <button onclick="cerrarModalCanje()" class="text-slate-400 hover:text-white text-sm" id="closeModalBtn">✕</button>
       </div>
 
       <div class="p-6 overflow-y-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -196,23 +194,23 @@
               </div>
               <div>
                 <label class="block text-[10px] text-slate-400 mb-1">Tamaño QR: <span id="valSizeQR">180</span>px</label>
-                <input type="range" id="rangeSize" min="120" max="280" value="180" oninput="actualizarPosicionQR()" class="w-full accent-purple-500">
+                <input type="range" id="rangeSize" min="100" max="250" value="180" oninput="actualizarPosicionQR()" class="w-full accent-purple-500">
               </div>
             </div>
           </div>
 
-          <button onclick="guardarYCanjearPlan()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3.5 rounded-xl text-sm shadow-lg transition-all">
+          <button onclick="guardarYCanjearPlan()" id="btnGuardarCanje" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3.5 rounded-xl text-sm shadow-lg transition-all">
             🚀 Canjear Plan y Guardar Evento
           </button>
         </div>
 
-        <!-- Vista Previa Interactiva Formato A5 -->
+        <!-- Vista Previa Interactiva Formato A5 con QR incrustado -->
         <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[380px]">
           <div id="flyerPreviewContainer" class="relative w-full h-80 bg-slate-900 border border-slate-800 rounded-xl flex items-center justify-center overflow-hidden shadow-inner">
             <span id="flyerPlaceholderText" class="text-slate-500 text-xs px-4">Sube tu flyer para ajustar el código QR de validación A5.</span>
             <img id="flyerImg" class="absolute inset-0 w-full h-full object-cover hidden" alt="Flyer A5">
-            <!-- QR Flotante Posicionable X, Y y Tamaño -->
-            <div id="qrFloatBox" class="absolute bg-white p-2.5 rounded-xl shadow-2xl hidden border-2 border-purple-500 cursor-move">
+            <!-- QR Flotante Posicionable X, Y y Tamaño con Previsualización Real -->
+            <div id="qrFloatBox" class="absolute bg-white p-2 rounded-xl shadow-2xl hidden border-2 border-purple-500 cursor-move">
               <div id="canvasPreviewQR"></div>
             </div>
           </div>
@@ -235,10 +233,10 @@
     let eventoGuardado = JSON.parse(localStorage.getItem('eskorp_evento_activo')) || null;
     let flyerBase64 = eventoGuardado ? eventoGuardado.flyer : "";
 
-    // Sincronizar estado inicial con Supabase y localStorage
-    verificarEstadoSistema();
+    // Sincronizar estado inicial al cargar la página
+    verificarEstadoSupabase();
 
-    async function verificarEstadoSistema() {
+    async function verificarEstadoSupabase() {
       try {
         const { data, error } = await supabaseClient
           .from('organizadores')
@@ -247,41 +245,67 @@
           .single();
 
         if (data && data.plan_name) {
-          const planActual = data.plan_name.toLowerCase();
-          if (planActual === '0' || planActual === 'inactivo' || planActual === '') {
-            document.getElementById('countPremium').innerText = '0';
-            document.getElementById('badgePremiumCount').innerText = '0 Activos';
-            document.getElementById('badgePremiumCount').className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded';
-            document.getElementById('cardPremiumWrapper').style.opacity = '0.5';
-            document.getElementById('btnCanjearPremium').innerText = 'Plan Canjeado';
-            document.getElementById('btnCanjearPremium').disabled = true;
-            document.getElementById('btnCanjearPremium').classList.remove('bg-purple-600', 'hover:bg-purple-500');
-            document.getElementById('btnCanjearPremium').classList.add('bg-slate-800', 'cursor-not-allowed', 'text-slate-500');
+          const planVal = data.plan_name.trim();
+          document.getElementById('statusPlanSupabase').innerText = planVal;
+
+          // Si el plan ya fue canjeado (es '0', 'Inactivo' o vacío)
+          if (planVal === '0' || planVal.toLowerCase() === 'inactivo' || planVal === '') {
+            bloquearInterfazPlanCanjeado();
+          } else {
+            // Plan activo disponible para canjear por primera vez
+            document.getElementById('badgePremiumCount').innerText = 'Disponible';
+            document.getElementById('badgePremiumCount').className = 'text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold';
+            
+            // Si ya hay evento guardado pero Supabase aún no se actualizó por seguridad, verificamos
+            if (eventoGuardado) {
+              document.getElementById('seccionInvitados').classList.remove('hidden');
+              document.getElementById('tituloPanelEvento').innerText = `Evento Activo: ${eventoGuardado.name}`;
+            }
           }
         }
       } catch (err) {
-        console.error("Error al sincronizar con Supabase:", err);
+        console.error("Error al consultar Supabase:", err);
+        // Fallback local si hay problemas de red
+        if (eventoGuardado) {
+          document.getElementById('seccionInvitados').classList.remove('hidden');
+          bloquearInterfazPlanCanjeado();
+        }
       }
+    }
+
+    function bloquearInterfazPlanCanjeado() {
+      document.getElementById('statusPlanSupabase').innerText = '0 (Canjeado)';
+      document.getElementById('badgePremiumCount').innerText = 'Canjeado';
+      document.getElementById('badgePremiumCount').className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded';
+      document.getElementById('cardPremiumWrapper').style.opacity = '0.6';
+      
+      const btnCanjear = document.getElementById('btnCanjearPremium');
+      btnCanjear.innerText = 'Plan Ya Canjeado';
+      btnCanjear.disabled = true;
+      btnCanjear.classList.remove('bg-purple-600', 'hover:bg-purple-500');
+      btnCanjear.classList.add('bg-slate-800', 'cursor-not-allowed', 'text-slate-500');
 
       if (eventoGuardado) {
         document.getElementById('seccionInvitados').classList.remove('hidden');
         document.getElementById('tituloPanelEvento').innerText = `Evento Activo: ${eventoGuardado.name}`;
-      } else {
-        document.getElementById('seccionInvitados').classList.add('hidden');
       }
     }
 
     function abrirModalCanje(tipo) {
-      document.getElementById('modalConfig').classList.remove('hidden');
-      if (eventoGuardado) {
-        document.getElementById('eventName').value = eventoGuardado.name;
-        document.getElementById('eventDate').value = eventoGuardado.date;
-        document.getElementById('eventTime').value = eventoGuardado.time;
-        document.getElementById('eventLocation').value = eventoGuardado.location;
-        document.getElementById('rangePosX').value = eventoGuardado.posX || 50;
-        document.getElementById('rangePosY').value = eventoGuardado.posY || 75;
-        document.getElementById('rangeSize').value = eventoGuardado.size || 180;
-        if (eventoGuardado.flyer) {
+      const modal = document.getElementById('modalConfig');
+      modal.classList.remove('hidden');
+
+      if (tipo === 'editar' || eventoGuardado) {
+        document.getElementById('modalTitleText').innerText = 'Editar Configuración del Evento y Flyer (A5)';
+        document.getElementById('eventName').value = eventoGuardado ? eventoGuardado.name : '';
+        document.getElementById('eventDate').value = eventoGuardado ? eventoGuardado.date : '';
+        document.getElementById('eventTime').value = eventoGuardado ? eventoGuardado.time : '';
+        document.getElementById('eventLocation').value = eventoGuardado ? eventoGuardado.location : '';
+        document.getElementById('rangePosX').value = eventoGuardado ? (eventoGuardado.posX || 50) : 50;
+        document.getElementById('rangePosY').value = eventoGuardado ? (eventoGuardado.posY || 75) : 75;
+        document.getElementById('rangeSize').value = eventoGuardado ? (eventoGuardado.size || 180) : 180;
+        
+        if (eventoGuardado && eventoGuardado.flyer) {
           flyerBase64 = eventoGuardado.flyer;
           const img = document.getElementById('flyerImg');
           img.src = flyerBase64;
@@ -289,14 +313,13 @@
           document.getElementById('flyerPlaceholderText').classList.add('hidden');
           document.getElementById('qrFloatBox').classList.remove('hidden');
           actualizarPosicionQR();
-          generarPreviewGenerico();
         }
       }
     }
 
     function cerrarModalCanje() {
       if (!eventoGuardado) {
-        alert("Debes configurar y guardar tu evento para continuar.");
+        alert("Debes configurar y canjear tu evento para continuar.");
         return;
       }
       document.getElementById('modalConfig').classList.add('hidden');
@@ -314,7 +337,6 @@
           document.getElementById('flyerPlaceholderText').classList.add('hidden');
           document.getElementById('qrFloatBox').classList.remove('hidden');
           actualizarPosicionQR();
-          generarPreviewGenerico();
         }
         reader.readAsDataURL(file);
       }
@@ -333,21 +355,10 @@
       box.style.left = `${posX}%`;
       box.style.top = `${posY}%`;
       box.style.transform = `translate(-${posX}%, -${posY}%)`;
-      
-      const qrCanvas = box.querySelector('canvas');
-      if (qrCanvas) {
-        qrCanvas.style.width = `${size}px`;
-        qrCanvas.style.height = `${size}px`;
-      }
-    }
 
-    function generarPreviewGenerico() {
       const qrDiv = document.getElementById('canvasPreviewQR');
       qrDiv.innerHTML = "";
-      const sizeVal = parseInt(document.getElementById('rangeSize').value);
-      QRCode.toCanvas(qrDiv, "PREVIEW-A5-ESKORP-SECURE", { width: sizeVal }, function(err){
-        actualizarPosicionQR();
-      });
+      QRCode.toCanvas(qrDiv, "PREVIEW-A5-ESKORP-VALIDACION", { width: parseInt(size), margin: 1 }, function(err){});
     }
 
     async function guardarYCanjearPlan() {
@@ -371,21 +382,23 @@
 
       localStorage.setItem('eskorp_evento_activo', JSON.stringify(eventoGuardado));
 
-      // Actualizar Supabase poniendo el plan a 0 automáticamente
+      // Actualizar automáticamente en Supabase poniendo el plan a '0'
       try {
         const { error } = await supabaseClient
           .from('organizadores')
           .update({ plan_name: '0' })
           .eq('company_name', companyName);
 
-        if (error) console.error("Error al actualizar Supabase:", error);
+        if (error) {
+          console.error("Error al actualizar Supabase:", error);
+        }
       } catch (err) {
         console.error("Excepción al conectar con Supabase:", err);
       }
 
-      alert("¡Plan canjeado y evento guardado con éxito! El sistema se ha sincronizado.");
+      alert("¡Plan canjeado y evento guardado con éxito!");
       document.getElementById('modalConfig').classList.add('hidden');
-      verificarEstadoSistema();
+      bloquearInterfazPlanCanjeado();
     }
 
     // Algoritmo criptográfico seguro antifraude para QRs en formato A5
@@ -398,8 +411,10 @@
     }
 
     function generarEntradaSeguraA5() {
-      const guest = document.getElementById('guestName').value.trim();
-      const phone = document.getElementById('guestPhone').value.trim();
+      const guestInput = document.getElementById('guestName');
+      const phoneInput = document.getElementById('guestPhone');
+      const guest = guestInput.value.trim();
+      const phone = phoneInput.value.trim();
 
       if (!guest || !phone) {
         alert("Ingresa el nombre del asistente y su número de WhatsApp.");
@@ -420,11 +435,16 @@
 
       const finalCanvas = document.getElementById('qrFinalCanvas');
       finalCanvas.innerHTML = "";
-      // Tamaño optimizado en alta resolución para lectura instantánea en puerta con cualquier celular
+      // QR de alta resolución optimizado para lectura instantánea en puerta con cualquier celular
       QRCode.toCanvas(finalCanvas, qrPayload, { width: 220, margin: 2 }, function(err){});
 
       const msg = encodeURIComponent(`Hola *${guest}*, aquí tienes tu pase digital oficial en formato A5 para *${eventoGuardado.name}* (${eventoGuardado.date} a las ${eventoGuardado.time}). Organiza: *${companyName}*. Token antifraude: ${tokenSeguro}. Presenta este código QR en la puerta.`);
       document.getElementById('whatsappFinalBtn').href = `https://wa.me/${phone}?text=${msg}`;
+
+      // Limpiar campos automáticamente para continuar registrando al siguiente invitado de forma fluida
+      guestInput.value = "";
+      phoneInput.value = "";
+      guestInput.focus();
     }
 
     function logout() {
