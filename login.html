@@ -3,58 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iniciar Sesión | ESKORP V-PASS</title>
+  <title>Iniciar Sesión Organizador | ESKORP V-PASS</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-6 selection:bg-purple-500 selection:text-white">
 
-  <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl w-full max-w-md shadow-2xl relative">
-    <div class="text-center mb-8">
-      <span class="text-xs font-mono uppercase bg-purple-950 text-purple-300 px-3 py-1 rounded-full border border-purple-800/60">ESKORP / V-PASS</span>
-      <h2 class="text-2xl font-bold mt-3 bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">Panel de Control</h2>
-      <p class="text-xs text-slate-400 mt-1">Ingresa tus credenciales de organizador</p>
+  <!-- Cabecera simple con logo para reiniciar -->
+  <header class="w-full max-w-md mx-auto flex items-center justify-between">
+    <a href="index.html" class="flex items-center space-x-3 group">
+      <div class="bg-purple-600/20 border border-purple-500/40 p-2.5 rounded-xl group-hover:border-purple-400 transition-colors">
+        <span class="text-sm font-black text-purple-400">V-PASS</span>
+      </div>
+      <span class="text-xs font-bold tracking-tight text-slate-300">ESKORP AGENCIA</span>
+    </a>
+    <a href="index.html" class="text-xs text-purple-400 hover:text-purple-300 underline">← Volver al inicio</a>
+  </header>
+
+  <!-- Formulario de Login de Organizador -->
+  <main class="w-full max-w-md mx-auto bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl space-y-6 my-auto">
+    <div class="text-center space-y-1">
+      <span class="text-[10px] font-mono text-purple-400 uppercase tracking-widest bg-purple-950/60 border border-purple-800/50 px-3 py-1 rounded-full">Acceso Cloud</span>
+      <h1 class="text-2xl font-bold tracking-tight text-white pt-2">Iniciar Sesión</h1>
+      <p class="text-xs text-slate-400">Panel exclusivo para organizadores de eventos</p>
     </div>
 
-    <form id="standaloneLoginForm" onsubmit="handleStandaloneLogin(event)" class="space-y-4">
+    <form id="orgLoginForm" class="space-y-4">
       <div>
-        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Correo Electrónico</label>
-        <input type="email" id="loginEmailInput" required placeholder="cliente@eskorp.com" 
-          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 text-sm">
+        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">Correo Electrónico</label>
+        <input type="email" id="orgEmail" required placeholder="tucorreo@empresa.com" 
+          class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 transition-all">
       </div>
       <div>
-        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Contraseña</label>
-        <input type="password" id="loginPassInput" required placeholder="••••••••" 
-          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 text-sm">
-      </div>
-      
-      <div id="standaloneErrorMsg" class="text-red-400 text-xs text-center hidden bg-red-500/10 border border-red-500/20 py-2 rounded">
-        Correo o contraseña incorrectos.
+        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">Contraseña</label>
+        <input type="password" id="orgPass" required placeholder="••••••••" 
+          class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 transition-all">
       </div>
 
-      <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg transition-all">
-        Iniciar Sesión de Forma Segura
+      <!-- Caja para mostrar errores o avisos -->
+      <div id="errorMsg" class="text-red-400 text-xs text-center hidden bg-red-500/10 border border-red-500/20 py-2.5 px-3 rounded-xl font-medium"></div>
+
+      <button type="submit" id="submitBtn" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3.5 rounded-xl shadow-lg text-sm transition-all flex items-center justify-center space-x-2">
+        <span>Ingresar al Panel</span>
       </button>
     </form>
 
-    <div class="mt-6 text-center">
-      <a href="index.html" class="text-xs text-slate-400 hover:text-white transition-colors">← Volver a la página principal</a>
+    <div class="text-center pt-4 border-t border-slate-800 space-y-2">
+      <p class="text-xs text-slate-400">¿Aún no tienes una cuenta o plan?</p>
+      <a href="https://wa.me/51921543755?text=Hola,%20deseo%20adquirir%20una%20cuenta%20y%20plan%20en%20ESKORP%20V-PASS" target="_blank" class="block w-full bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 text-xs font-semibold py-2.5 rounded-xl transition-all">
+        💬 Contáctanos por WhatsApp (921543755)
+      </a>
     </div>
-  </div>
+  </main>
 
-  <script src="js/auth.js"></script>
-  <script>
-    function handleStandaloneLogin(event) {
-      event.preventDefault();
-      const email = document.getElementById('loginEmailInput').value.trim();
-      const pass = document.getElementById('loginPassInput').value.trim();
+  <footer class="w-full max-w-md mx-auto text-center text-xs text-slate-500">
+    ESKORP V-PASS &copy; 2026
+  </footer>
+
+  <!-- Lógica de Conexión a Supabase -->
+  <script type="module">
+    import { loginOrganizador } from './js/supabase-config.js';
+
+    const form = document.getElementById('orgLoginForm');
+    const errBox = document.getElementById('errorMsg');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Evita que la página se recargue en vacío
       
-      const success = authenticateOrganizer(email, pass);
-      if (success) {
-        window.location.href = 'panel.html';
-      } else {
-        document.getElementById('standaloneErrorMsg').classList.remove('hidden');
+      const email = document.getElementById('orgEmail').value.trim();
+      const pass = document.getElementById('orgPass').value.trim();
+
+      errBox.classList.add('hidden');
+      submitBtn.innerText = "Verificando en la nube...";
+      submitBtn.disabled = true;
+
+      try {
+        const res = await loginOrganizador(email, pass);
+
+        if (res.success) {
+          window.location.href = 'panel.html';
+        } else {
+          errBox.innerText = res.message;
+          errBox.classList.remove('hidden');
+          submitBtn.innerText = "Ingresar al Panel";
+          submitBtn.disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        errBox.innerText = "Error de conexión con Supabase. Revisa tus credenciales.";
+        errBox.classList.remove('hidden');
+        submitBtn.innerText = "Ingresar al Panel";
+        submitBtn.disabled = false;
       }
-    }
+    });
   </script>
 </body>
 </html>
