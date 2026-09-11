@@ -1,29 +1,26 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// Asegúrate de colocar aquí tu URL real de Supabase y tu Publishable Key
-const SUPABASE_URL = 'https://tu-proyecto.supabase.co'; 
+// Credenciales oficiales de tu proyecto en Supabase
+const SUPABASE_URL = 'https://bkvjrzzufqqvyuhytvc.supabase.co'; 
 const SUPABASE_ANON_KEY = 'sb_publishable__gFLNEd1OZWH8E_jeTmM2w_kTisJ...'; 
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Login de Organizador con depuración de errores
+// Login de Organizador
 export async function loginOrganizador(email, password) {
     try {
         const { data, error } = await supabase
             .from('organizadores')
             .select('*')
             .eq('email', email)
-            .maybeSingle(); // Usamos maybeSingle para evitar excepciones si no encuentra filas
+            .maybeSingle();
 
         if (error) {
-            console.error("Error de Supabase:", error.message);
             return { success: false, message: "Error en la base de datos: " + error.message };
         }
-
         if (!data) {
             return { success: false, message: "El correo no está registrado en organizadores." };
         }
-
         if (data.password !== password) {
             return { success: false, message: "Contraseña incorrecta." };
         }
@@ -38,7 +35,6 @@ export async function loginOrganizador(email, password) {
 
         return { success: true, data };
     } catch (err) {
-        console.error("Excepción en login:", err);
         return { success: false, message: "Error crítico de conexión con la nube." };
     }
 }
