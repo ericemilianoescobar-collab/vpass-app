@@ -1,7 +1,6 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// Credenciales oficiales de tu proyecto en Supabase
-const SUPABASE_URL = 'https://bkvjrzzufqqvyuhytvc.supabase.co'; 
+const SUPABASE_URL = 'https://bkvjrzzufqqvyuhytvc.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable__gFLNEd1OZWH8E_jeTmM2w_kTisJ...'; 
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -12,10 +11,11 @@ export async function loginOrganizador(email, password) {
         const { data, error } = await supabase
             .from('organizadores')
             .select('*')
-            .eq('email', email)
+            .eq('email', email.toLowerCase().trim())
             .maybeSingle();
 
         if (error) {
+            console.error("Supabase Error:", error);
             return { success: false, message: "Error en la base de datos: " + error.message };
         }
         if (!data) {
@@ -35,6 +35,7 @@ export async function loginOrganizador(email, password) {
 
         return { success: true, data };
     } catch (err) {
+        console.error("Fetch Error:", err);
         return { success: false, message: "Error crítico de conexión con la nube." };
     }
 }
@@ -45,7 +46,7 @@ export async function loginValidador(email, password) {
         const { data, error } = await supabase
             .from('validadores')
             .select('*')
-            .eq('email', email)
+            .eq('email', email.toLowerCase().trim())
             .maybeSingle();
 
         if (error || !data) {
