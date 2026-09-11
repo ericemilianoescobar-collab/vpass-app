@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- QRCode.js -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-  <!-- html2canvas y jsPDF para descargas perfectas -->
+  <!-- html2canvas y jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- Supabase -->
@@ -34,16 +34,15 @@
         </div>
         <div>
           <h1 class="text-lg font-bold text-white" id="welcomeOrgTitle">Portal del Organizador</h1>
-          <p class="text-xs text-slate-400" id="orgEmailSubtitle">Sistema de Emisión de Entradas</p>
+          <p class="text-xs text-slate-400">Sistema Antifraude y Control de Accesos</p>
         </div>
       </a>
 
-      <!-- Estado de Créditos / Plan -->
       <div class="flex flex-wrap items-center gap-3">
         <div class="bg-slate-950 border border-slate-800 px-4 py-2 rounded-xl text-xs space-y-0.5">
-          <span class="text-slate-400 block text-[10px] uppercase font-mono">Licencia de Evento</span>
+          <span class="text-slate-400 block text-[10px] uppercase font-mono">Estado del Sistema</span>
           <div class="flex items-center space-x-2 font-bold text-xs">
-            <span class="text-slate-300">Estado: <span id="supabasePlanValue" class="text-purple-400 text-sm">Verificando...</span></span>
+            <span class="text-slate-300">Licencia: <span id="supabasePlanValue" class="text-purple-400 text-sm">Verificando...</span></span>
           </div>
         </div>
         <button onclick="logout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition-colors">
@@ -52,7 +51,7 @@
       </div>
     </header>
 
-    <!-- Tarjetas Informativas de Planes -->
+    <!-- Tarjetas de Planes -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40">
         <div>
@@ -70,7 +69,7 @@
         <button disabled class="w-full bg-slate-800 text-slate-500 font-semibold py-2.5 rounded-xl text-xs cursor-not-allowed border border-slate-700">No Disponible</button>
       </div>
 
-      <!-- Plan Principal Activo -->
+      <!-- Plan Activo -->
       <div id="cardPremiumWrapper" class="bg-slate-900/60 border border-purple-500 bg-purple-950/20 p-5 rounded-2xl flex flex-col justify-between space-y-4">
         <div>
           <div class="flex justify-between items-center">
@@ -79,16 +78,16 @@
           </div>
           <div class="text-lg font-bold text-slate-200 mt-1">Emisión de Pases Ilimitados</div>
         </div>
-        <button id="btnCanjearPlan" onclick="abrirModalConfig()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
-          ⚡ Configurar Evento y Activar
+        <button id="btnConfigurarEvento" onclick="abrirModalConfig()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
+          ⚡ Configurar / Ver Ajustes del Evento
         </button>
       </div>
     </div>
 
-    <!-- Sección Principal: Registro de Invitados + Flyer con QR Integrado -->
+    <!-- Sección Principal -->
     <div id="seccionPrincipalEvento" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
       
-      <!-- Columna Izquierda: Registro y Listado de Invitados -->
+      <!-- Columna Izquierda -->
       <div class="lg:col-span-6 space-y-6">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
           <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -114,7 +113,7 @@
           </div>
         </div>
 
-        <!-- Tabla de Invitados Creados -->
+        <!-- Tabla de Asistentes -->
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
           <h3 class="text-sm font-bold text-white flex items-center justify-between">
             <span>📋 Asistentes Registrados</span>
@@ -140,7 +139,7 @@
         </div>
       </div>
 
-      <!-- Columna Derecha: Vista Previa del Flyer con QR Integrado -->
+      <!-- Columna Derecha: Vista Previa Real con QR Posicionado Exacto -->
       <div class="lg:col-span-6 space-y-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center">
         <div class="w-full flex justify-between items-center border-b border-slate-800 pb-3">
           <h3 class="text-sm font-bold text-white flex items-center space-x-2">
@@ -150,17 +149,17 @@
           <span class="text-xs text-purple-400 font-mono">Vista Previa General</span>
         </div>
 
-        <!-- Contenedor Proporcional (object-fit: contain) -->
-        <div id="flyerExportContainer" class="relative w-full max-w-sm aspect-[4/5] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex items-center justify-center shadow-2xl">
+        <!-- Contenedor del Flyer -->
+        <div id="flyerWrapperBox" class="relative w-full max-w-sm aspect-[4/5] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden flex items-center justify-center shadow-2xl">
           <span id="flyerPlaceholderMsg" class="text-slate-500 text-xs text-center p-4">Configura tu evento y sube tu flyer para visualizarlo completo.</span>
-          <img id="flyerDisplayImg" class="absolute inset-0 w-full h-full object-contain hidden bg-black/40" alt="Flyer Oficial">
+          <img id="flyerDisplayImg" class="absolute w-full h-full object-contain hidden" alt="Flyer Oficial">
           
-          <!-- Caja QR Flotante Personalizable -->
-          <div id="qrFlotanteVisual" class="absolute bg-white p-2 rounded-lg shadow-2xl hidden border-2 border-purple-600">
+          <!-- QR Flotante Posicionado en Pantalla -->
+          <div id="qrFlotanteVisual" class="absolute bg-white p-1.5 rounded-lg shadow-2xl hidden border-2 border-purple-600">
             <div id="canvasQRRender" class="flex items-center justify-center"></div>
           </div>
         </div>
-        <p class="text-[11px] text-slate-400 text-center">Cada invitado generado tendrá este mismo flyer con su código QR antifraude único.</p>
+        <p class="text-[11px] text-slate-400 text-center">El código QR se incrusta automáticamente en la posición exacta que configures.</p>
       </div>
 
     </div>
@@ -201,42 +200,37 @@
           <input type="text" id="eventLocation" placeholder="Ej. Centro de Convenciones, Huamanga" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
         </div>
 
-        <!-- Subir Flyer y Controles de Posición / Tamaño del QR -->
+        <!-- Subir Flyer y Controles de Coordenadas -->
         <div class="border-t border-slate-800 pt-4 space-y-3">
           <label class="block text-xs uppercase tracking-wider text-purple-400 font-bold">Subir Flyer Oficial (Formato Vertical)</label>
           <input type="file" id="flyerInput" accept="image/*" onchange="cargarFlyer(event)" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer">
           
           <div class="grid grid-cols-3 gap-3 pt-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
             <div>
-              <label class="block text-[10px] text-slate-400 mb-1">Pos X: <span id="valPosX">50</span>%</label>
-              <input type="range" id="rangePosX" min="10" max="90" value="50" oninput="actualizarQRMetricas()" class="w-full accent-purple-500">
+              <label class="block text-[10px] text-slate-400 mb-1">Eje X: <span id="valPosX">50</span>%</label>
+              <input type="range" id="rangePosX" min="5" max="95" value="50" oninput="actualizarQRMetricas()" class="w-full accent-purple-500">
             </div>
             <div>
-              <label class="block text-[10px] text-slate-400 mb-1">Pos Y: <span id="valPosY">80</span>%</label>
-              <input type="range" id="rangePosY" min="10" max="90" value="80" oninput="actualizarQRMetricas()" class="w-full accent-purple-500">
+              <label class="block text-[10px] text-slate-400 mb-1">Eje Y: <span id="valPosY">80</span>%</label>
+              <input type="range" id="rangePosY" min="5" max="95" value="80" oninput="actualizarQRMetricas()" class="w-full accent-purple-500">
             </div>
             <div>
-              <label class="block text-[10px] text-slate-400 mb-1">Tamaño QR: <span id="valSizeQR">90</span>px</label>
-              <input type="range" id="rangeSize" min="50" max="160" value="90" oninput="actualizarQRMetricas()" class="w-full accent-purple-500">
+              <label class="block text-[10px] text-slate-400 mb-1">Tamaño QR: <span id="valSizeQR">85</span>px</label>
+              <input type="range" id="rangeSize" min="40" max="150" value="85" oninput="actualizarQRMetricas()" class="w-full accent-purple-500">
             </div>
           </div>
         </div>
 
         <button onclick="guardarConfiguracionEvento()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3.5 rounded-xl text-sm shadow-lg transition-all">
-          💾 Guardar y Activar Evento
+          💾 Guardar y Bloquear Configuración
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Contenedor Oculto para Generar Descargas Exactas con el QR del Invitado -->
-  <div id="hiddenExportWrapper" style="position: absolute; left: -9999px; top: -9999px;">
-    <div id="exportTargetCard" class="relative bg-black" style="width: 500px; height: 625px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-      <img id="exportFlyerImg" style="width: 100%; height: 100%; object-fit: contain;" alt="Flyer">
-      <div id="exportQRBox" style="position: absolute; background: white; padding: 6px; border-radius: 8px; border: 3px solid #7c3aed; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-        <div id="exportQRCodeTarget"></div>
-      </div>
-    </div>
+  <!-- Canvas Oculto para Generación Perfecta de Descargas (Imagen y PDF) -->
+  <div style="position: absolute; left: -9999px; top: -9999px;">
+    <canvas id="canvasExportador" width="800" height="1000"></canvas>
   </div>
 
   <footer class="max-w-7xl mx-auto w-full pt-8 text-center text-xs text-slate-500 border-t border-slate-900">
@@ -252,10 +246,11 @@
     let listaInvitados = JSON.parse(localStorage.getItem('eskorp_invitados_' + companyName)) || [];
     let flyerBase64 = eventoGuardado ? eventoGuardado.flyer : "";
 
-    verificarEstadoYExpiracion();
+    verificarEstadoYConfiguracion();
     renderizarTablaInvitados();
 
-    async function verificarEstadoYExpiracion() {
+    async function verificarEstadoYConfiguracion() {
+      let planBloqueadoEnDB = false;
       try {
         const { data } = await supabaseClient
           .from('organizadores')
@@ -264,33 +259,25 @@
           .single();
 
         if (data && data.plan_name !== undefined) {
-          const planValor = data.plan_name.toString().trim();
-          document.getElementById('supabasePlanValue').innerText = planValor === '0' ? 'Configurado y Activo' : `${planValor} Disponibles`;
+          const val = data.plan_name.toString().trim();
+          document.getElementById('supabasePlanValue').innerText = val === '0' ? 'Evento Bloqueado / Canjeado' : `${val} Disponibles`;
+          if (val === '0') planBloqueadoEnDB = true;
         }
       } catch (err) {
-        console.error("Sincronización interna activa");
+        console.error("Sincronización activa");
       }
 
-      if (eventoGuardado && eventoGuardado.date && eventoGuardado.time) {
-        const fechaEvento = new Date(`${eventoGuardado.date}T${eventoGuardado.time}`);
-        const tiempoExpiracion = fechaEvento.getTime() + (24 * 60 * 60 * 1000);
-        const ahora = new Date().getTime();
-
-        if (ahora > tiempoExpiracion) {
-          alert("El evento ha superado las 24 horas de vigencia y ha sido cerrado automáticamente por seguridad.");
-          document.getElementById('badgeEstadoPlan').innerText = 'Finalizado';
-          document.getElementById('badgeEstadoPlan').className = 'text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded';
-          document.getElementById('cardPremiumWrapper').style.opacity = '0.5';
-          document.getElementById('btnCanjearPlan').innerText = 'Evento Expirado';
-          document.getElementById('btnCanjearPlan').disabled = true;
-          return;
-        }
-
+      if (eventoGuardado) {
         mostrarPanelPrincipal();
-      } else {
-        if (!eventoGuardado) {
-          abrirModalConfig();
+        // Si ya está configurado, bloqueamos los campos principales para que no se pueda modificar libremente
+        if (planBloqueadoEnDB || eventoGuardado.bloqueado) {
+          document.getElementById('eventName').disabled = true;
+          document.getElementById('eventDate').disabled = true;
+          document.getElementById('eventTime').disabled = true;
+          document.getElementById('eventLocation').disabled = true;
         }
+      } else {
+        abrirModalConfig();
       }
     }
 
@@ -316,19 +303,13 @@
         document.getElementById('eventLocation').value = eventoGuardado.location || '';
         document.getElementById('rangePosX').value = eventoGuardado.posX || 50;
         document.getElementById('rangePosY').value = eventoGuardado.posY || 80;
-        document.getElementById('rangeSize').value = eventoGuardado.size || 90;
-
-        if (eventoGuardado.bloqueado) {
-          document.getElementById('eventName').disabled = true;
-          document.getElementById('eventDate').disabled = true;
-          document.getElementById('eventTime').disabled = true;
-        }
+        document.getElementById('rangeSize').value = eventoGuardado.size || 85;
       }
     }
 
     function cerrarModalConfig() {
       if (!eventoGuardado) {
-        alert("Debes configurar y guardar los datos de tu evento.");
+        alert("Debes guardar la configuración inicial del evento.");
         return;
       }
       document.getElementById('modalConfig').classList.add('hidden');
@@ -361,7 +342,7 @@
 
       const renderDiv = document.getElementById('canvasQRRender');
       renderDiv.innerHTML = "";
-      QRCode.toCanvas(renderDiv, "PREVIEW-ESKORP-VPASS", { width: parseInt(size), margin: 1 }, function(err){});
+      QRCode.toCanvas(renderDiv, "PREVIEW-QR", { width: parseInt(size), margin: 1 }, function(err){});
     }
 
     async function guardarConfiguracionEvento() {
@@ -371,7 +352,7 @@
       const location = document.getElementById('eventLocation').value.trim();
 
       if (!name || !date || !time) {
-        alert("Por favor completa el nombre del evento, fecha y hora.");
+        alert("Por favor completa los datos obligatorios del evento.");
         return;
       }
 
@@ -386,18 +367,19 @@
 
       localStorage.setItem('eskorp_evento_' + companyName, JSON.stringify(eventoGuardado));
 
+      // Bloquear en Supabase permanentemente para evitar re-canjes ilimitados
       try {
         await supabaseClient
           .from('organizadores')
           .update({ plan_name: '0' })
           .eq('company_name', companyName);
       } catch (err) {
-        console.error("Sincronización con base de datos completada.");
+        console.error("Error al sincronizar con Supabase.");
       }
 
-      alert("¡Evento guardado y configurado exitosamente!");
+      alert("¡Configuración guardada y bloqueada exitosamente!");
       document.getElementById('modalConfig').classList.add('hidden');
-      mostrarPanelPrincipal();
+      location.reload();
     }
 
     function generarTokenSeguro() {
@@ -408,7 +390,7 @@
 
     function registrarInvitado() {
       if (!eventoGuardado) {
-        alert("Primero configura tu evento.");
+        alert("Primero configura los datos de tu evento.");
         abrirModalConfig();
         return;
       }
@@ -448,7 +430,7 @@
 
       tbody.innerHTML = "";
       listaInvitados.forEach((inv, index) => {
-        const msg = encodeURIComponent(`Hola *${inv.guest}*, aquí tienes tu pase oficial para *${eventoGuardado.name}*. Token antifraude: ${inv.token}. Presenta este código QR en puerta.`);
+        const msg = encodeURIComponent(`Hola *${inv.guest}*, aquí tienes tu pase oficial para *${eventoGuardado.name}*. Token antifraude: ${inv.token}. Presenta este código QR.`);
         const waLink = `https://wa.me/${inv.phone}?text=${msg}`;
 
         const tr = document.createElement('tr');
@@ -468,69 +450,78 @@
     }
 
     function eliminarInvitado(index) {
-      if (confirm("¿Deseas eliminar este asistente de la lista?")) {
+      if (confirm("¿Deseas eliminar este asistente?")) {
         listaInvitados.splice(index, 1);
         localStorage.setItem('eskorp_invitados_' + companyName, JSON.stringify(listaInvitados));
         renderizarTablaInvitados();
       }
     }
 
-    // Función robusta para generar y descargar la entrada única (Imagen o PDF) con el QR exacto del invitado
+    // Generador basado en Canvas puro para evitar fallos de librerías externas de html2canvas en flyers oscuros
     async function descargarEntrada(index, formato) {
       const inv = listaInvitados[index];
       if (!eventoGuardado || !eventoGuardado.flyer) {
-        alert("No hay flyer configurado.");
+        alert("Falta configurar el flyer del evento.");
         return;
       }
 
-      const flyerImg = document.getElementById('exportFlyerImg');
-      flyerImg.src = eventoGuardado.flyer;
+      const canvas = document.getElementById('canvasExportador');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const qrBox = document.getElementById('exportQRBox');
-      const posX = eventoGuardado.posX || 50;
-      const posY = eventoGuardado.posY || 80;
-      qrBox.style.left = `${posX}%`;
-      qrBox.style.top = `${posY}%`;
-      qrBox.style.transform = `translate(-${posX}%, -${posY}%)`;
+      // Cargar Flyer
+      const imgFlyer = new Image();
+      imgFlyer.crossOrigin = "anonymous";
+      imgFlyer.src = eventoGuardado.flyer;
 
-      const qrTarget = document.getElementById('exportQRCodeTarget');
-      qrTarget.innerHTML = "";
+      imgFlyer.onload = async () => {
+        // Dibujar flyer ocupando todo el canvas de 800x1000
+        ctx.drawImage(imgFlyer, 0, 0, canvas.width, canvas.height);
 
-      // Datos cifrados únicos antifraude para el invitado
-      const dataQR = JSON.stringify({
-        evento: eventoGuardado.name,
-        asistente: inv.guest,
-        token: inv.token,
-        empresa: companyName
-      });
+        // Generar QR en un elemento temporal
+        const tempDiv = document.createElement('div');
+        const qrDataString = JSON.stringify({ evento: eventoGuardado.name, asistente: inv.guest, token: inv.token });
+        const qrSizeReal = 220; // Tamaño de alta resolución para impresión/descarga
 
-      const qrSize = parseInt(eventoGuardado.size || 90);
-      await QRCode.toCanvas(qrTarget, dataQR, { width: qrSize, margin: 1 });
+        await QRCode.toCanvas(tempDiv, qrDataString, { width: qrSizeReal, margin: 1 });
+        const canvasQR = tempDiv.querySelector('canvas');
 
-      const targetCard = document.getElementById('exportTargetCard');
+        // Coordenadas calculadas desde los porcentajes (X e Y)
+        const porc X = parseFloat(eventoGuardado.posX || 50) / 100;
+        const porcY = parseFloat(eventoGuardado.posY || 80) / 100;
 
-      setTimeout(async () => {
-        try {
-          const canvas = await html2canvas(targetCard, { scale: 2, useCORS: true, allowTaint: true });
-          
-          if (formato === 'imagen') {
-            const link = document.createElement('a');
-            link.download = `Entrada-${inv.guest.replace(/\s+/g, '_')}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-          } else if (formato === 'pdf') {
-            const imgData = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-            pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
-            pdf.save(`Entrada-${inv.guest.replace(/\s+/g, '_')}.pdf`);
-          }
-        } catch (e) {
-          alert("Error al generar el archivo. Inténtalo nuevamente.");
+        const qrW = 160; // Ancho del QR en el canvas final
+        const qrH = 160; // Alto del QR en el canvas final
+
+        const posXFinal = (canvas.width * porcX) - (qrW / 2);
+        const posYFinal = (canvas.height * porcY) - (qrH / 2);
+
+        // Dibujar fondo blanco y borde morado para el QR en la tarjeta final
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(posXFinal - 8, posYFinal - 8, qrW + 16, qrH + 16);
+        ctx.strokeStyle = "#7c3aed";
+        ctx.lineWidth = 6;
+        ctx.strokeRect(posXFinal - 8, posYFinal - 8, qrW + 16, qrH + 16);
+
+        // Dibujar el QR generado
+        ctx.drawImage(canvasQR, posXFinal, posYFinal, qrW, qrH);
+
+        // Ejecutar descarga según el formato seleccionado
+        if (formato === 'imagen') {
+          const link = document.createElement('a');
+          link.download = `Entrada-${inv.guest.replace(/\s+/g, '_')}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        } else if (formato === 'pdf') {
+          const imgData = canvas.toDataURL('image/png');
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+          pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+          pdf.save(`Entrada-${inv.guest.replace(/\s+/g, '_')}.pdf`);
         }
-      }, 400);
+      };
     }
 
     function logout() {
