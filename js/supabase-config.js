@@ -1,9 +1,8 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
+// Cliente global de Supabase configurado por CDN clásico
 const SUPABASE_URL = 'https://bkvjrzzufqqvyuhytvc.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable__gFLNEd1OZWH8E_jeTmM2w_kTisJ...'; 
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Login de Organizador
 export async function loginOrganizador(email, password) {
@@ -11,7 +10,7 @@ export async function loginOrganizador(email, password) {
         const { data, error } = await supabase
             .from('organizadores')
             .select('*')
-            .eq('email', email.toLowerCase().trim())
+            .eq('email', email.trim())
             .maybeSingle();
 
         if (error) {
@@ -46,7 +45,7 @@ export async function loginValidador(email, password) {
         const { data, error } = await supabase
             .from('validadores')
             .select('*')
-            .eq('email', email.toLowerCase().trim())
+            .eq('email', email.trim())
             .maybeSingle();
 
         if (error || !data) {
