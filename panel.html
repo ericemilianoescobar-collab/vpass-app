@@ -137,35 +137,35 @@
         </div>
       </div>
 
-      <!-- Vista Previa Interactiva del Flyer con QR Incrustado Real -->
+      <!-- Vista Previa Interactiva del Flyer con QR y Texto visible -->
       <div class="lg:col-span-6 space-y-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center">
         <div class="w-full flex justify-between items-center border-b border-slate-800 pb-3">
           <h3 class="text-sm font-bold text-white flex items-center space-x-2">
             <span>🖼️</span>
-            <span>Vista Previa del Flyer con QR</span>
+            <span>Vista Previa Dinámica del Flyer</span>
           </h3>
-          <span class="text-xs text-purple-400 font-mono">Diseño Oficial</span>
+          <span class="text-xs text-purple-400 font-mono">Tiempo Real</span>
         </div>
 
         <div class="relative w-full max-w-sm aspect-[4/5] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl flex items-center justify-center">
           <span id="mensajePlaceholderFlyer" class="text-slate-500 text-xs text-center p-4">Configura tu evento y sube tu flyer para visualizarlo.</span>
           <canvas id="canvasPreviewFlyer" class="w-full h-full object-contain hidden"></canvas>
         </div>
-        <p class="text-[11px] text-slate-400 text-center">El QR se posiciona exactamente en las coordenadas configuradas.</p>
+        <p class="text-[11px] text-slate-400 text-center">Visualiza el QR y su código único incrustado tal como lo recibirá el asistente.</p>
       </div>
 
     </div>
 
   </div>
 
-  <!-- Modal de Configuración y Canje Único -->
+  <!-- Modal de Configuración, Posición en Tiempo Real y Canje Único -->
   <div id="modalConfig" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
       
       <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-950">
         <h3 class="text-sm font-bold text-white flex items-center space-x-2">
           <span>⚙️</span>
-          <span>Configuración del Evento y Posición del QR</span>
+          <span>Configuración y Ajuste Dinámico del QR</span>
         </h3>
         <button onclick="cerrarModalConfig()" class="text-slate-400 hover:text-white text-sm">✕</button>
       </div>
@@ -173,7 +173,7 @@
       <div class="p-6 overflow-y-auto space-y-4">
         <div>
           <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Nombre del Evento</label>
-          <input type="text" id="eventName" placeholder="Ej. Gran Fiesta NIX Ayacucho" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
+          <input type="text" id="eventName" oninput="actualizarMetricasUI()" placeholder="Ej. Gran Fiesta NIX Ayacucho" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500">
         </div>
         
         <div class="grid grid-cols-2 gap-4">
@@ -219,7 +219,7 @@
     </div>
   </div>
 
-  <!-- Canvas Oculto para Descargas de Alta Resolución (Imagen y PDF) -->
+  <!-- Canvas Oculto para Exportación de Alta Resolución -->
   <canvas id="canvasExportadorOculto" width="800" height="1000" style="display:none;"></canvas>
 
   <footer class="max-w-7xl mx-auto w-full pt-8 text-center text-xs text-slate-500 border-t border-slate-900">
@@ -281,7 +281,7 @@
       document.getElementById('seccionPanelPrincipal').classList.remove('hidden');
       if (eventoGuardado && eventoGuardado.flyer) {
         flyerBase64 = eventoGuardado.flyer;
-        renderizarFlyerConQR('canvasPreviewFlyer', "PREVIEW-TOKEN-ESKORP");
+        renderizarFlyerConQR('canvasPreviewFlyer', "EJEMPLO-CODIGO-QR");
       }
     }
 
@@ -324,7 +324,7 @@
       document.getElementById('valSizeQR').innerText = document.getElementById('rangeSize').value;
 
       if (flyerBase64) {
-        renderizarFlyerConQR('canvasPreviewFlyer', "PREVIEW-TOKEN-ESKORP");
+        renderizarFlyerConQR('canvasPreviewFlyer', "EJEMPLO-CODIGO-QR");
       }
     }
 
@@ -350,7 +350,6 @@
 
       localStorage.setItem('eskorp_evento_' + companyName, JSON.stringify(eventoGuardado));
 
-      // Actualizar en Supabase para bloquear el canje definitivo
       try {
         await supabaseClient
           .from('organizadores')
@@ -365,10 +364,21 @@
       location.reload();
     }
 
-    function generarTokenSeguroAzar() {
-      const array = new Uint8Array(16);
+    // Algoritmo Robusto Antifraude: 2 iniciales asistente + 2 iniciales evento + caracteres al azar seguros
+    function generarTokenSeguroInteligente(nombreAsistente, nombreEvento) {
+      const limpiarTexto = (str) => (str || "XX").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z]/g, "").toUpperCase();
+      
+      const partsA = limpiarTexto(nombreAsistente).split(' ').filter(Boolean);
+      const inicialesAsistente = (partsA.length >= 2) ? (partsA[0][0] + partsA[1][0]) : (partsA[0] ? partsA[0].substring(0, 2) : "AS");
+      
+      const partsE = limpiarTexto(nombreEvento).split(' ').filter(Boolean);
+      const inicialesEvento = (partsE.length >= 2) ? (partsE[0][0] + partsE[1][0]) : (partsE[0] ? partsE[0].substring(0, 2) : "EV");
+
+      const array = new Uint8Array(4);
       window.crypto.getRandomValues(array);
-      return `ESK-${Date.now().toString(36).toUpperCase()}-${Array.from(array, b => b.toString(16).padStart(2, '0')).join('').toUpperCase().substring(0,10)}`;
+      const randomHex = Array.from(array, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+
+      return `${inicialesAsistente}-${inicialesEvento}-${randomHex}`;
     }
 
     function registrarInvitado() {
@@ -388,7 +398,7 @@
         return;
       }
 
-      const token = generarTokenSeguroAzar();
+      const token = generarTokenSeguroInteligente(guest, eventoGuardado.name);
       const nuevoInvitado = { guest, phone, token };
 
       listaInvitados.push(nuevoInvitado);
@@ -413,7 +423,7 @@
 
       tbody.innerHTML = "";
       listaInvitados.forEach((inv, index) => {
-        const msg = encodeURIComponent(`Hola *${inv.guest}*, aquí tienes tu pase oficial para *${eventoGuardado.name}*. Token Antifraude: ${inv.token}. Presenta este código QR en puerta.`);
+        const msg = encodeURIComponent(`Hola *${inv.guest}*, aquí tienes tu pase oficial para *${eventoGuardado.name}*. Código Antifraude: ${inv.token}. Presenta este código QR en puerta.`);
         const waLink = `https://wa.me/${inv.phone}?text=${msg}`;
 
         const tr = document.createElement('tr');
@@ -440,8 +450,8 @@
       }
     }
 
-    // Función matemática para renderizar Flyer y QR perfectamente alineados en un Canvas
-    function renderizarFlyerConQR(canvasId, textoQR) {
+    // Renderizado en Canvas con QR y Código de Texto visible abajo
+    function renderizarFlyerConQR(canvasId, textoMostrar) {
       const canvas = document.getElementById(canvasId);
       const ctx = canvas.getContext('2d');
 
@@ -458,8 +468,8 @@
         // Dibujar Flyer Base
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        // Generar QR en elemento temporal
-        QRCode.toDataURL(textoQR, { width: 300, margin: 1 }, function (err, qrDataUrl) {
+        // Generar QR
+        QRCode.toDataURL(textoMostrar, { width: 300, margin: 1 }, function (err, qrDataUrl) {
           if (err) return;
 
           const imgQR = new Image();
@@ -467,26 +477,36 @@
           imgQR.onload = () => {
             const posXPorc = parseFloat(eventoGuardado ? eventoGuardado.posX : document.getElementById('rangePosX').value) / 100;
             const posYPorc = parseFloat(eventoGuardado ? eventoGuardado.posY : document.getElementById('rangePosY').value) / 100;
-            const sizeQR = parseFloat(eventoGuardado ? eventoGuardado.size : document.getElementById('rangeSize').value) * 1.5; // Escala proporcional
+            const sizeQR = parseFloat(eventoGuardado ? eventoGuardado.size : document.getElementById('rangeSize').value) * 1.5;
 
             const qrX = (canvas.width * posXPorc) - (sizeQR / 2);
             const qrY = (canvas.height * posYPorc) - (sizeQR / 2);
 
+            // Altura extra para el contenedor de texto inferior
+            const extraHeight = 44;
+
             // Fondo Blanco y Borde Morado Antifraude
             ctx.fillStyle = "#ffffff";
-            ctx.fillRect(qrX - 10, qrY - 10, sizeQR + 20, sizeQR + 20);
+            ctx.fillRect(qrX - 12, qrY - 12, sizeQR + 24, sizeQR + extraHeight);
             ctx.strokeStyle = "#7c3aed";
             ctx.lineWidth = 6;
-            ctx.strokeRect(qrX - 10, qrY - 10, sizeQR + 20, sizeQR + 20);
+            ctx.strokeRect(qrX - 12, qrY - 12, sizeQR + 24, sizeQR + extraHeight);
 
             // Dibujar QR
             ctx.drawImage(imgQR, qrX, qrY, sizeQR, sizeQR);
+
+            // Dibujar Texto del Código Visible Abajo
+            ctx.fillStyle = "#0f172a";
+            ctx.font = "bold 15px monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(textoMostrar, qrX + (sizeQR / 2), qrY + sizeQR + 22);
           };
         });
       };
     }
 
-    // Descarga Blindada (Imagen o PDF)
+    // Descarga Blindada de Imagen o PDF con el Código Correcto
     async function descargarEntrada(index, formato) {
       const inv = listaInvitados[index];
       if (!eventoGuardado || !eventoGuardado.flyer) {
@@ -505,14 +525,7 @@
         canvas.height = 1000;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        const datosUnicosSeguros = JSON.stringify({
-          evento: eventoGuardado.name,
-          asistente: inv.guest,
-          token: inv.token,
-          empresa: companyName
-        });
-
-        QRCode.toDataURL(datosUnicosSeguros, { width: 350, margin: 1 }, function (err, qrDataUrl) {
+        QRCode.toDataURL(inv.token, { width: 350, margin: 1 }, function (err, qrDataUrl) {
           if (err) {
             alert("Error al generar el código QR.");
             return;
@@ -527,14 +540,22 @@
 
             const qrX = (canvas.width * posXPorc) - (sizeQR / 2);
             const qrY = (canvas.height * posYPorc) - (sizeQR / 2);
+            const extraHeight = 50;
 
             ctx.fillStyle = "#ffffff";
-            ctx.fillRect(qrX - 12, qrY - 12, sizeQR + 24, sizeQR + 24);
+            ctx.fillRect(qrX - 14, qrY - 14, sizeQR + 28, sizeQR + extraHeight);
             ctx.strokeStyle = "#7c3aed";
             ctx.lineWidth = 8;
-            ctx.strokeRect(qrX - 12, qrY - 12, sizeQR + 24, sizeQR + 24);
+            ctx.strokeRect(qrX - 14, qrY - 14, sizeQR + 28, sizeQR + extraHeight);
 
             ctx.drawImage(imgQR, qrX, qrY, sizeQR, sizeQR);
+
+            // Código visible legible en la exportación oficial
+            ctx.fillStyle = "#0f172a";
+            ctx.font = "bold 18px monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(inv.token, qrX + (sizeQR / 2), qrY + sizeQR + 25);
 
             if (formato === 'imagen') {
               const link = document.createElement('a');
