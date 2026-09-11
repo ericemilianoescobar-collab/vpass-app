@@ -1,11 +1,12 @@
-// Cliente global de Supabase configurado por CDN clásico
+// Configuración global de Supabase
 const SUPABASE_URL = 'https://bkvjrzzufqqvyuhytvc.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable__gFLNEd1OZWH8E_jeTmM2w_kTisJ...'; 
 
-export const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Inicialización directa mediante el script global de la CDN
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Login de Organizador
-export async function loginOrganizador(email, password) {
+// Login de Organizador global
+window.loginOrganizador = async function(email, password) {
     try {
         const { data, error } = await supabase
             .from('organizadores')
@@ -37,10 +38,10 @@ export async function loginOrganizador(email, password) {
         console.error("Fetch Error:", err);
         return { success: false, message: "Error crítico de conexión con la nube." };
     }
-}
+};
 
-// Login de Validador
-export async function loginValidador(email, password) {
+// Login de Validador global
+window.loginValidador = async function(email, password) {
     try {
         const { data, error } = await supabase
             .from('validadores')
@@ -69,4 +70,4 @@ export async function loginValidador(email, password) {
     } catch (err) {
         return { success: false, message: "Error al validar puerta en la nube." };
     }
-}
+};
