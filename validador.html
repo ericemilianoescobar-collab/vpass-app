@@ -9,91 +9,75 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-6">
 
-  <!-- Login de Validador -->
+  <!-- Login de Puerta -->
   <div id="loginScreen" class="max-w-md mx-auto my-auto w-full bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl">
     <div class="text-center mb-6">
       <span class="text-xs font-mono text-purple-400 uppercase tracking-widest">Punto de Control</span>
       <h2 class="text-2xl font-bold mt-1">Acceso Validador QR</h2>
-      <p class="text-xs text-slate-400 mt-1">Inicia sesión con el correo y contraseña asignados para tu puerta.</p>
+      <p class="text-xs text-slate-400 mt-1">Ingresa con las credenciales de tu puerta</p>
     </div>
-
-    <form onsubmit="handleLogin(event)" class="space-y-4">
+    <form id="valForm" class="space-y-4">
       <div>
         <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Correo de Puerta</label>
-        <input type="email" id="valEmail" required placeholder="puerta1@eskorp.com" 
-          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500">
+        <input type="email" id="valEmail" required placeholder="puerta1@eskorp.com" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500">
       </div>
       <div>
         <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1 font-semibold">Contraseña</label>
-        <input type="password" id="valPass" required placeholder="••••••••" 
-          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500">
+        <input type="password" id="valPass" required placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500">
       </div>
       <div id="errorMsg" class="text-red-400 text-xs text-center hidden bg-red-500/10 border border-red-500/20 py-2 rounded"></div>
-      <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg text-sm transition-all">
+      <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-lg shadow-lg text-sm transition-all">
         Iniciar Sesión en Puerta
       </button>
     </form>
   </div>
 
-  <!-- Pantalla de Escaneo (Cámara) -->
+  <!-- Pantalla del Escáner -->
   <div id="scannerScreen" class="max-w-xl mx-auto w-full hidden space-y-6 my-auto">
     <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl text-center shadow-lg">
       <span class="text-xs bg-emerald-950 text-emerald-300 border border-emerald-800 px-3 py-1 rounded-full font-mono" id="badgeDoor">Puerta Activa</span>
-      <h2 class="text-xl font-bold mt-3">Escáner de Accesos QR</h2>
-      <p class="text-xs text-slate-400 mt-1">Apunta la cámara del celular al código QR del asistente.</p>
-
+      <h2 class="text-xl font-bold mt-3">Escáner de Accesos</h2>
       <div class="mt-6 flex justify-center">
         <video id="qrVideo" class="w-full max-w-sm rounded-xl border border-slate-700 shadow-md"></video>
       </div>
-
       <div class="mt-6 flex gap-3 justify-center">
-        <button onclick="startCamera()" class="bg-purple-600 hover:bg-purple-500 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all shadow-lg">
-          📷 Activar Cámara
-        </button>
-        <button onclick="stopCamera()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all">
-          Detener
-        </button>
+        <button onclick="startCamera()" class="bg-purple-600 hover:bg-purple-500 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all">Activar Cámara</button>
+        <button onclick="stopCamera()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all">Detener</button>
       </div>
-
       <div id="scanResult" class="mt-6 hidden p-4 rounded-xl text-sm font-bold"></div>
     </div>
-
     <div class="text-center">
       <button onclick="logoutVal()" class="text-xs text-red-400 hover:text-red-300 underline">Cerrar Sesión de Puerta</button>
     </div>
   </div>
 
-  <footer class="text-center text-xs text-slate-500 py-4">
-    ESKORP V-PASS &copy; 2026 - Módulo Móvil de Validación
-  </footer>
-
   <script type="module">
     import { loginValidador } from './js/supabase-config.js';
 
     const session = JSON.parse(localStorage.getItem('eskorp_session'));
-    if (session && session.tipo === 'validador') {
-      showScanner(session);
-    }
+    if (session && session.tipo === 'validador') showScanner(session);
 
-    window.handleLogin = async function(event) {
-      event.preventDefault();
+    document.getElementById('valForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
       const email = document.getElementById('valEmail').value.trim();
       const pass = document.getElementById('valPass').value.trim();
+      const errBox = document.getElementById('errorMsg');
 
+      errBox.classList.add('hidden');
       const res = await loginValidador(email, pass);
+
       if (res.success) {
         showScanner(res.data);
       } else {
-        const errBox = document.getElementById('errorMsg');
         errBox.innerText = res.message;
         errBox.classList.remove('hidden');
       }
-    }
+    });
 
     function showScanner(data) {
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('scannerScreen').classList.remove('hidden');
-      document.getElementById('badgeDoor').innerText = `${data.door_name} (Dueño: ${data.organizer_email})`;
+      document.getElementById('badgeDoor').innerText = data.door_name || "Puerta Activa";
       startCamera();
     }
   </script>
@@ -101,26 +85,21 @@
   <script>
     let videoStream = null;
     let scanning = false;
-
     function startCamera() {
       const video = document.getElementById('qrVideo');
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then(stream => {
-          videoStream = stream;
-          video.srcObject = stream;
-          video.setAttribute("playsinline", true);
-          video.play();
-          scanning = true;
-          requestAnimationFrame(tickScan);
-        })
-        .catch(err => alert("No se pudo acceder a la cámara: " + err));
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
+        videoStream = stream;
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.play();
+        scanning = true;
+        requestAnimationFrame(tickScan);
+      }).catch(err => alert("Error de cámara: " + err));
     }
-
     function stopCamera() {
       scanning = false;
       if (videoStream) videoStream.getTracks().forEach(t => t.stop());
     }
-
     function tickScan() {
       if (!scanning) return;
       const video = document.getElementById('qrVideo');
@@ -131,7 +110,6 @@
         const ctx = canvas.getContext("2d");
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
         const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: "dontInvert" });
         if (code) {
           stopCamera();
@@ -144,7 +122,6 @@
       }
       requestAnimationFrame(tickScan);
     }
-
     window.logoutVal = function() {
       stopCamera();
       localStorage.removeItem('eskorp_session');
