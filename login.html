@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión Organizador | ESKORP V-PASS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- CDN de Supabase cargado con defer para evitar bloqueos en blanco -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <!-- Supabase CDN directo -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between p-6 selection:bg-purple-500 selection:text-white">
 
-  <!-- Cabecera simple con logo para reiniciar -->
   <header class="w-full max-w-md mx-auto flex items-center justify-between">
     <a href="index.html" class="flex items-center space-x-3 group">
       <div class="bg-purple-600/20 border border-purple-500/40 p-2.5 rounded-xl group-hover:border-purple-400 transition-colors">
@@ -21,7 +20,6 @@
     <a href="index.html" class="text-xs text-purple-400 hover:text-purple-300 underline">← Volver al inicio</a>
   </header>
 
-  <!-- Formulario de Login de Organizador -->
   <main class="w-full max-w-md mx-auto bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl space-y-6 my-auto">
     <div class="text-center space-y-1">
       <span class="text-[10px] font-mono text-purple-400 uppercase tracking-widest bg-purple-950/60 border border-purple-800/50 px-3 py-1 rounded-full">Acceso Cloud</span>
@@ -41,7 +39,6 @@
           class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500 transition-all">
       </div>
 
-      <!-- Caja para mostrar errores o avisos -->
       <div id="errorMsg" class="text-red-400 text-xs text-center hidden bg-red-500/10 border border-red-500/20 py-2.5 px-3 rounded-xl font-medium"></div>
 
       <button type="submit" id="submitBtn" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3.5 rounded-xl shadow-lg text-sm transition-all flex items-center justify-center space-x-2">
@@ -61,15 +58,17 @@
     ESKORP V-PASS &copy; 2026
   </footer>
 
-  <!-- Lógica de Conexión y Login -->
-  <script src="./js/supabase-config.js"></script>
+  <!-- Script integrado para evitar fallos de fetch externos -->
   <script>
+    const SUPABASE_URL = 'https://bkvjrzzufqqvyuhytvc.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable__gFLNEd1OZWH8E_jeTmM2w_kTisJ...';
+
     const form = document.getElementById('orgLoginForm');
     const errBox = document.getElementById('errorMsg');
     const submitBtn = document.getElementById('submitBtn');
 
     form.addEventListener('submit', async (e) => {
-      e.preventDefault(); 
+      e.preventDefault();
       
       const email = document.getElementById('orgEmail').value.trim();
       const pass = document.getElementById('orgPass').value.trim();
@@ -79,23 +78,41 @@
       submitBtn.disabled = true;
 
       try {
-        if (!window.loginOrganizador) {
-          throw new Error("El sistema de autenticación aún está cargando.");
+        if (!window.supabase) {
+          throw new Error("Supabase no cargó correctamente.");
         }
 
-        const res = await window.loginOrganizador(email, pass);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        if (res.success) {
-          window.location.href = 'panel.html';
-        } else {
-          errBox.innerText = res.message;
-          errBox.classList.remove('hidden');
-          submitBtn.innerText = "Ingresar al Panel";
-          submitBtn.disabled = false;
+        const { data, error } = await supabaseClient
+            .from('organizadores')
+            .select('*')
+            .eq('email', email)
+            .maybeSingle();
+
+        if (error) {
+            throw new Error(error.message);
         }
+        if (!data) {
+            throw new Error("El correo no está registrado.");
+        }
+        if (data.password !== pass) {
+            throw new Error("Contraseña incorrecta.");
+        }
+
+        localStorage.setItem('eskorp_session', JSON.stringify({
+            tipo: 'organizador',
+            email: data.email,
+            plan: data.plan_name || 'Estándar',
+            maxDoors: data.max_doors || 1,
+            empresa: data.company_name || 'ESKORP V-PASS'
+        }));
+
+        window.location.href = 'panel.html';
+
       } catch (err) {
         console.error(err);
-        errBox.innerText = "Error de conexión con Supabase. Revisa tus credenciales.";
+        errBox.innerText = err.message || "Error de conexión con la base de datos.";
         errBox.classList.remove('hidden');
         submitBtn.innerText = "Ingresar al Panel";
         submitBtn.disabled = false;
