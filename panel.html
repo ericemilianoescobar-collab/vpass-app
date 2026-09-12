@@ -112,7 +112,7 @@
       </div>
     </div>
 
-    <!-- Sección Principal del Panel (Se habilita tras guardar configuración) -->
+    <!-- Sección Principal del Panel -->
     <div id="seccionPanelPrincipal" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
       
       <!-- Emisión de Pases -->
@@ -265,7 +265,7 @@
     let eventoGuardado = JSON.parse(localStorage.getItem('eskorp_evento_' + companyName)) || null;
     let listaInvitados = JSON.parse(localStorage.getItem('eskorp_invitados_' + companyName)) || [];
     let flyerBase64 = eventoGuardado ? eventoGuardado.flyer : "";
-    let limiteMaxEntradas = 250; // por defecto plan básico
+    let limiteMaxEntradas = 250;
 
     sincronizarPlanesSupabase();
     renderizarTablaInvitados();
@@ -298,6 +298,7 @@
         activarTarjetaUI('cardPlanBasico', 'badgeBasico', 'Activo');
       }
 
+      // CORRECCIÓN: Solo abre el modal si NUNCA se ha guardado un evento.
       if (eventoGuardado) {
         mostrarPanelPrincipal();
         if (eventoGuardado.bloqueado) {
