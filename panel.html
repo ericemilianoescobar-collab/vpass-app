@@ -25,7 +25,7 @@
 
   <div class="max-w-7xl mx-auto space-y-6 w-full">
     
-    <!-- Cabecera Corporativa -->
+    <!-- Cabecera Corporativa Limpia -->
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900/90 border border-slate-800/80 p-6 rounded-2xl shadow-2xl backdrop-blur-md gap-4">
       <div class="flex items-center space-x-4">
         <div class="bg-gradient-to-br from-purple-600 to-indigo-600 p-3 rounded-2xl shadow-lg shadow-purple-500/20">
@@ -40,20 +40,14 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="bg-slate-950/80 border border-slate-800 px-4 py-2 rounded-xl text-xs space-y-0.5">
-          <span class="text-slate-400 block text-[10px] uppercase font-mono">Licencia Cloud Supabase</span>
-          <div class="flex items-center space-x-2 font-bold text-xs">
-            <span class="text-purple-300 font-mono" id="supabasePlanValue">Sincronizando...</span>
-          </div>
-        </div>
+      <div class="flex items-center gap-3">
         <button onclick="logout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all">
           Cerrar Sesión
         </button>
       </div>
     </header>
 
-    <!-- Barra de Estado del Plan Activo (Diseño Minimalista y Estético) -->
+    <!-- Barra de Estado del Plan Activo -->
     <div class="bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
       <div class="flex items-center space-x-4">
         <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -75,7 +69,7 @@
     <!-- Panel Operativo Principal -->
     <div id="seccionPanelPrincipal" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- Columna Izquierda: Emisión y Métricas -->
+      <!-- Columna Izquierda: Métricas, Emisión y Gestión de Validadores -->
       <div class="lg:col-span-5 space-y-6">
         
         <!-- Tarjeta de Métricas del Evento Activo -->
@@ -96,6 +90,38 @@
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/60">
               <span class="block text-[10px] font-mono text-slate-500">Ubicación</span>
               <span class="font-semibold text-slate-200 truncate block" id="displayUbicacion">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Apartado: Creación de Usuarios Validadores -->
+        <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+              <span>🛡️</span>
+              <span>Gestión de Validadores</span>
+            </h3>
+            <span id="contadorValidadoresBadge" class="text-xs bg-slate-950 text-indigo-400 border border-slate-800 px-3 py-1 rounded-full font-mono">0 / 1</span>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[10px] uppercase font-mono tracking-wider text-slate-400 mb-1">Usuario del Validador</label>
+              <input type="text" id="validadorUser" placeholder="Ej. puerta_principal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-mono tracking-wider text-slate-400 mb-1">Contraseña de Acceso</label>
+              <input type="password" id="validadorPass" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+            </div>
+            <button onclick="crearValidador()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/20">
+              ➕ Crear Cuenta de Validador
+            </button>
+          </div>
+
+          <!-- Lista de validadores creados -->
+          <div class="pt-2">
+            <div id="listaValidadoresContainer" class="space-y-2 max-h-36 overflow-y-auto">
+              <p class="text-xs text-slate-500 italic text-center py-2">No hay validadores creados.</p>
             </div>
           </div>
         </div>
@@ -135,7 +161,7 @@
             <span id="contadorInvitados" class="text-xs bg-slate-950 text-purple-400 border border-slate-800 px-3 py-1 rounded-full font-mono">0 Asistentes</span>
           </div>
           
-          <div class="overflow-x-auto max-h-[420px] overflow-y-auto">
+          <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
             <table class="w-full text-left text-xs text-slate-300">
               <thead class="bg-slate-950 text-slate-400 uppercase font-mono text-[10px] sticky top-0">
                 <tr>
@@ -250,11 +276,14 @@
 
     let eventoGuardado = JSON.parse(localStorage.getItem('eskorp_evento_' + companyName)) || null;
     let listaInvitados = JSON.parse(localStorage.getItem('eskorp_invitados_' + companyName)) || [];
+    let listaValidadores = JSON.parse(localStorage.getItem('eskorp_validadores_' + companyName)) || [];
     let flyerBase64 = eventoGuardado ? eventoGuardado.flyer : "";
     let limiteMaxEntradas = 250;
+    let limiteMaxValidadores = 1;
 
     sincronizarPlanesSupabase();
     renderizarTablaInvitados();
+    renderizarListaValidadores();
 
     async function sincronizarPlanesSupabase() {
       try {
@@ -269,14 +298,12 @@
           const estandar = parseInt(data.plan_estandar) || 0;
           const premium = parseInt(data.plan_premium) || 0;
 
-          document.getElementById('supabasePlanValue').innerHTML = `B:(${basico}) | E:(${estandar}) | P:(${premium})`;
-
           gestionTarjetasYLimites(basico, estandar, premium);
         }
       } catch (err) {
         console.error("Error sincronizando planes", err);
-        document.getElementById('supabasePlanValue').innerText = "B:(1) | E:(0) | P:(0)";
         limiteMaxEntradas = 250;
+        limiteMaxValidadores = 1;
         actualizarUIPlanActivo('BÁSICO', '250 Entradas | 1 Validador');
       }
 
@@ -285,18 +312,21 @@
       } else {
         abrirModalConfig();
       }
-      actualizarContadorEntradasUI();
+      actualizarContadoresUI();
     }
 
     function gestionTarjetasYLimites(basico, estandar, premium) {
       if (premium > 0) {
         limiteMaxEntradas = 999999;
+        limiteMaxValidadores = 5;
         actualizarUIPlanActivo('PREMIUM', 'Entradas Ilimitadas | 5 Validadores');
       } else if (estandar > 0) {
         limiteMaxEntradas = 350;
+        limiteMaxValidadores = 3;
         actualizarUIPlanActivo('ESTÁNDAR', '350 Entradas | 3 Validadores');
       } else {
         limiteMaxEntradas = 250;
+        limiteMaxValidadores = 1;
         actualizarUIPlanActivo('BÁSICO', '250 Entradas | 1 Validador');
       }
     }
@@ -313,9 +343,72 @@
       document.getElementById('displayUbicacion').innerText = eventoGuardado.location || 'Sede principal';
     }
 
-    function actualizarContadorEntradasUI() {
-      const textoLimite = limiteMaxEntradas >= 999999 ? 'Ilimitadas' : limiteMaxEntradas;
-      document.getElementById('contadorEntradasBadge').innerText = `${listaInvitados.length} / ${textoLimite}`;
+    function actualizarContadoresUI() {
+      const textoLimiteEntradas = limiteMaxEntradas >= 999999 ? 'Ilimitadas' : limiteMaxEntradas;
+      document.getElementById('contadorEntradasBadge').innerText = `${listaInvitados.length} / ${textoLimiteEntradas}`;
+      document.getElementById('contadorValidadoresBadge').innerText = `${listaValidadores.length} / ${limiteMaxValidadores}`;
+    }
+
+    function crearValidador() {
+      const userField = document.getElementById('validadorUser');
+      const passField = document.getElementById('validadorPass');
+      const username = userField.value.trim();
+      const password = passField.value.trim();
+
+      if (!username || !password) {
+        alert("Ingresa un usuario y contraseña para el validador.");
+        return;
+      }
+
+      if (listaValidadores.length >= limiteMaxValidadores) {
+        alert(`Has alcanzado el límite de ${limiteMaxValidadores} validador(es) permitido(s) en tu plan actual.`);
+        return;
+      }
+
+      if (listaValidadores.some(v => v.username === username)) {
+        alert("Este nombre de usuario ya está registrado.");
+        return;
+      }
+
+      listaValidadores.push({ username, password, empresa: companyName });
+      localStorage.setItem('eskorp_validadores_' + companyName, JSON.stringify(listaValidadores));
+
+      userField.value = '';
+      passField.value = '';
+      renderizarListaValidadores();
+      actualizarContadoresUI();
+      alert("¡Cuenta de validador creada exitosamente!");
+    }
+
+    function eliminarValidador(index) {
+      if (confirm("¿Estás seguro de eliminar este acceso de validador?")) {
+        listaValidadores.splice(index, 1);
+        localStorage.setItem('eskorp_validadores_' + companyName, JSON.stringify(listaValidadores));
+        renderizarListaValidadores();
+        actualizarContadoresUI();
+      }
+    }
+
+    function renderizarListaValidadores() {
+      const container = document.getElementById('listaValidadoresContainer');
+      if (listaValidadores.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-2">No hay validadores creados.</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      listaValidadores.forEach((val, index) => {
+        const div = document.createElement('div');
+        div.className = "flex justify-between items-center bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs";
+        div.innerHTML = `
+          <div>
+            <span class="font-bold text-white block">${val.username}</span>
+            <span class="text-[10px] text-slate-400 font-mono">Clave: ${val.password}</span>
+          </div>
+          <button onclick="eliminarValidador(${index})" class="text-red-400 hover:text-red-300 px-2 py-1 text-xs">✕</button>
+        `;
+        container.appendChild(div);
+      });
     }
 
     function abrirModalConfig() {
@@ -401,6 +494,7 @@
       if (confirm("⚠️ ¿Deseas eliminar este evento y reiniciar el panel corporativo?")) {
         localStorage.removeItem('eskorp_evento_' + companyName);
         localStorage.removeItem('eskorp_invitados_' + companyName);
+        localStorage.removeItem('eskorp_validadores_' + companyName);
         alert("Evento reiniciado correctamente.");
         location.reload();
       }
@@ -453,7 +547,7 @@
       nameInput.focus();
 
       renderizarTablaInvitados();
-      actualizarContadorEntradasUI();
+      actualizarContadoresUI();
     }
 
     function renderizarTablaInvitados() {
@@ -497,7 +591,7 @@
         listaInvitados.splice(index, 1);
         localStorage.setItem('eskorp_invitados_' + companyName, JSON.stringify(listaInvitados));
         renderizarTablaInvitados();
-        actualizarContadorEntradasUI();
+        actualizarContadoresUI();
       }
     }
 
