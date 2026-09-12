@@ -269,25 +269,28 @@
     ESKORP V-PASS &copy; 2026 - Enterprise Access Control System
   </footer>
 
-  <!-- Lógica Corporativa Conectada -->
+  <!-- Lógica Corporativa Conectada a Supabase -->
   <script>
     const companyName = session.company_name || session.empresa || "ESKORP";
     document.getElementById('welcomeOrgTitle').innerText = `Portal de ${companyName}`;
 
-    let eventoGuardado = JSON.parse(localStorage.getItem('eskorp_evento_' + companyName)) || null;
-    let listaInvitados = JSON.parse(localStorage.getItem('eskorp_invitados_' + companyName)) || [];
-    let listaValidadores = JSON.parse(localStorage.getItem('eskorp_validadores_' + companyName)) || [];
-    let flyerBase64 = eventoGuardado ? eventoGuardado.flyer : "";
+    let eventoGuardado = null;
+    let listaInvitados = [];
+    let listaValidadores = [];
+    let flyerBase64 = "";
     let limiteMaxEntradas = 250;
     let limiteMaxValidadores = 1;
 
-    sincronizarPlanesSupabase();
-    renderizarTablaInvitados();
-    renderizarListaValidadores();
+    async function inicializarPortal() {
+      await sincronizarPlanesSupabase();
+      await cargarDatosDesdeSupabase();
+    }
+
+    inicializarPortal();
 
     async function sincronizarPlanesSupabase() {
       try {
-        const { data, error } = await supabaseClient
+        const { data } = await supabaseClient
           .from('organizadores')
           .select('plan_basico, plan_estandar, plan_premium')
           .eq('company_name', companyName)
@@ -297,20 +300,49 @@
           const basico = parseInt(data.plan_basico) || 0;
           const estandar = parseInt(data.plan_estandar) || 0;
           const premium = parseInt(data.plan_premium) || 0;
-
           gestionTarjetasYLimites(basico, estandar, premium);
         }
       } catch (err) {
-        console.error("Error sincronizando planes", err);
         limiteMaxEntradas = 250;
         limiteMaxValidadores = 1;
         actualizarUIPlanActivo('BÁSICO', '250 Entradas | 1 Validador');
       }
+    }
 
-      if (eventoGuardado) {
-        actualizarInfoDashboardEvento();
-      } else {
-        abrirModalConfig();
+    async function cargarDatosDesdeSupabase() {
+      try {
+        const { data: evData } = await supabaseClient
+          .from('eventos')
+          .select('*')
+          .eq('company_name', companyName)
+          .maybeSingle();
+
+        if (evData) {
+          eventoGuardado = evData;
+          flyerBase64 = evData.flyer || "";
+          actualizarInfoDashboardEvento();
+        } else {
+          abrirModalConfig();
+        }
+
+        const { data: invData } = await supabaseClient
+          .from('invitados')
+          .select('*')
+          .eq('company_name', companyName);
+        
+        listaInvitados = invData || [];
+        renderizarTablaInvitados();
+
+        const { data: valData } = await supabaseClient
+          .from('validadores')
+          .select('*')
+          .eq('company_name', companyName);
+
+        listaValidadores = valData || [];
+        renderizarListaValidadores();
+
+      } catch (err) {
+        console.error("Error cargando datos de Supabase:", err);
       }
       actualizarContadoresUI();
     }
@@ -349,7 +381,7 @@
       document.getElementById('contadorValidadoresBadge').innerText = `${listaValidadores.length} / ${limiteMaxValidadores}`;
     }
 
-    function crearValidador() {
+    async function crearValidador() {
       const userField = document.getElementById('validadorUser');
       const passField = document.getElementById('validadorPass');
       const username = userField.value.trim();
@@ -370,20 +402,36 @@
         return;
       }
 
-      listaValidadores.push({ username, password, empresa: companyName });
-      localStorage.setItem('eskorp_validadores_' + companyName, JSON.stringify(listaValidadores));
+      const nuevoVal = { company_name: companyName, username, password };
+      const { error, data } = await supabaseClient.from('validadores').insert([nuevoVal]).select();
+
+      if (error) {
+        alert("Error al registrar el validador en la nube.");
+        console.error(error);
+        return;
+      }
+
+      if (data && data[0]) {
+        listaValidadores.push(data[0]);
+      } else {
+        listaValidadores.push(nuevoVal);
+      }
 
       userField.value = '';
       passField.value = '';
       renderizarListaValidadores();
       actualizarContadoresUI();
-      alert("¡Cuenta de validador creada exitosamente!");
+      alert("¡Cuenta de validador creada exitosamente en la nube!");
     }
 
-    function eliminarValidador(index) {
+    async function eliminarValidador(id, index) {
       if (confirm("¿Estás seguro de eliminar este acceso de validador?")) {
+        const { error } = await supabaseClient.from('validadores').delete().eq('id', id);
+        if (error) {
+          alert("Error al eliminar de la base de datos.");
+          return;
+        }
         listaValidadores.splice(index, 1);
-        localStorage.setItem('eskorp_validadores_' + companyName, JSON.stringify(listaValidadores));
         renderizarListaValidadores();
         actualizarContadoresUI();
       }
@@ -405,7 +453,7 @@
             <span class="font-bold text-white block">${val.username}</span>
             <span class="text-[10px] text-slate-400 font-mono">Clave: ${val.password}</span>
           </div>
-          <button onclick="eliminarValidador(${index})" class="text-red-400 hover:text-red-300 px-2 py-1 text-xs">✕</button>
+          <button onclick="eliminarValidador(${val.id}, ${index})" class="text-red-400 hover:text-red-300 px-2 py-1 text-xs">✕</button>
         `;
         container.appendChild(div);
       });
@@ -473,29 +521,38 @@
         return;
       }
 
-      eventoGuardado = {
+      const datosEvento = {
+        company_name: companyName,
         name, date, time, location,
         flyer: flyerBase64,
         posX: document.getElementById('rangePosX').value,
         posY: document.getElementById('rangePosY').value,
-        size: document.getElementById('rangeSize').value,
-        bloqueado: true
+        size: document.getElementById('rangeSize').value
       };
 
-      localStorage.setItem('eskorp_evento_' + companyName, JSON.stringify(eventoGuardado));
+      const { error } = await supabaseClient
+        .from('eventos')
+        .upsert(datosEvento, { onConflict: 'company_name' });
 
-      alert("¡Configuración guardada exitosamente!");
+      if (error) {
+        alert("Error al guardar la configuración en la nube.");
+        console.error(error);
+        return;
+      }
+
+      eventoGuardado = datosEvento;
+      alert("¡Configuración guardada en la nube exitosamente!");
       document.getElementById('modalConfig').classList.add('hidden');
       actualizarInfoDashboardEvento();
       location.reload();
     }
 
-    function eliminarEventoPorCompleto() {
-      if (confirm("⚠️ ¿Deseas eliminar este evento y reiniciar el panel corporativo?")) {
-        localStorage.removeItem('eskorp_evento_' + companyName);
-        localStorage.removeItem('eskorp_invitados_' + companyName);
-        localStorage.removeItem('eskorp_validadores_' + companyName);
-        alert("Evento reiniciado correctamente.");
+    async function eliminarEventoPorCompleto() {
+      if (confirm("⚠️ ¿Deseas eliminar este evento y limpiar todos los registros en la nube?")) {
+        await supabaseClient.from('eventos').delete().eq('company_name', companyName);
+        await supabaseClient.from('invitados').delete().eq('company_name', companyName);
+        await supabaseClient.from('validadores').delete().eq('company_name', companyName);
+        alert("Evento reiniciado correctamente en la nube.");
         location.reload();
       }
     }
@@ -516,7 +573,7 @@
       return `${inicialesAsistente}-${inicialesEvento}-${randomHex}`;
     }
 
-    function registrarInvitado() {
+    async function registrarInvitado() {
       if (!eventoGuardado) {
         alert("Debes configurar el evento antes de emitir pases.");
         abrirModalConfig();
@@ -539,8 +596,20 @@
       }
 
       const token = generarTokenSeguroInteligente(guest, eventoGuardado.name);
-      listaInvitados.push({ guest, phone, token });
-      localStorage.setItem('eskorp_invitados_' + companyName, JSON.stringify(listaInvitados));
+      const nuevoInvitado = { company_name: companyName, guest, phone, token };
+
+      const { error, data } = await supabaseClient.from('invitados').insert([nuevoInvitado]).select();
+      if (error) {
+        alert("Error al registrar invitado en la nube.");
+        console.error(error);
+        return;
+      }
+
+      if (data && data[0]) {
+        listaInvitados.push(data[0]);
+      } else {
+        listaInvitados.push(nuevoInvitado);
+      }
 
       nameInput.value = "";
       phoneInput.value = "";
@@ -562,7 +631,6 @@
 
       tbody.innerHTML = "";
       listaInvitados.forEach((inv, index) => {
-        // Corrección aplicada: Construcción limpia basada estrictamente en el dominio y ruta actual
         const originUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
         const linkInvitacion = `${originUrl}ver-entrada.html?org=${encodeURIComponent(companyName)}&token=${encodeURIComponent(inv.token)}`;
         
@@ -584,17 +652,21 @@
             <a href="${waLink}" target="_blank" class="inline-block bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded-lg text-[10px] font-semibold hover:bg-emerald-500/20">Wsp</a>
             <button onclick="descargarEntrada(${index}, 'imagen')" class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-1 rounded-lg text-[10px] font-semibold hover:bg-purple-500/20">Img</button>
             <button onclick="descargarEntrada(${index}, 'pdf')" class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-1 rounded-lg text-[10px] font-semibold hover:bg-indigo-500/20">PDF</button>
-            <button onclick="eliminarInvitado(${index})" class="text-red-400 hover:text-red-300 px-1 py-1 text-xs">✕</button>
+            <button onclick="eliminarInvitado(${inv.id}, ${index})" class="text-red-400 hover:text-red-300 px-1 py-1 text-xs">✕</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function eliminarInvitado(index) {
+    async function eliminarInvitado(id, index) {
       if (confirm("¿Deseas eliminar este registro?")) {
+        const { error } = await supabaseClient.from('invitados').delete().eq('id', id);
+        if (error) {
+          alert("Error al eliminar de la nube.");
+          return;
+        }
         listaInvitados.splice(index, 1);
-        localStorage.setItem('eskorp_invitados_' + companyName, JSON.stringify(listaInvitados));
         renderizarTablaInvitados();
         actualizarContadoresUI();
       }
@@ -688,7 +760,6 @@
             ctx.textAlign = "center";
             ctx.fillText(inv.token, qrX + (sizeQR / 2), qrY + sizeQR + 35);
 
-            // Textos adicionales de invitado en la parte superior si se desea
             ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
             ctx.fillRect(40, 40, 720, 90);
             ctx.strokeStyle = "#7c3aed";
