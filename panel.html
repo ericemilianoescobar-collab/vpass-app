@@ -25,7 +25,7 @@
 
   <div class="max-w-7xl mx-auto space-y-8 w-full">
     
-    <!-- Cabecera del Panel -->
+    <!-- Cabecera del Panel con Plan Activo Detectado -->
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl gap-4">
       <div class="flex items-center space-x-3">
         <div class="bg-purple-600/20 border border-purple-500/40 p-3 rounded-xl">
@@ -41,7 +41,7 @@
         <div class="bg-slate-950 border border-slate-800 px-4 py-2 rounded-xl text-xs space-y-0.5">
           <span class="text-slate-400 block text-[10px] uppercase font-mono">Plan Activo Detectado</span>
           <div class="flex items-center space-x-2 font-bold text-xs">
-            <span class="text-slate-300"><span id="supabasePlanValue" class="text-purple-400 text-sm uppercase">Verificando...</span></span>
+            <span class="text-slate-300" id="supabasePlanValue">Sincronizando...</span>
           </div>
         </div>
         <button onclick="logout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition-colors">
@@ -50,7 +50,7 @@
       </div>
     </header>
 
-    <!-- Tarjetas Informativas de los Planes -->
+    <!-- Sección de Planes Interactivos y Brillantes / Configuración -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
       <!-- Plan Básico -->
@@ -77,8 +77,8 @@
         <div class="text-[11px] text-slate-500 font-mono">Control operativo intermedio</div>
       </div>
 
-      <!-- Plan Premium / Configuración de Evento -->
-      <div id="cardPlanPremium" class="bg-slate-900/60 border border-slate-800 bg-purple-950/10 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40 transition-all">
+      <!-- Plan Premium con Acceso a Configuración de Evento -->
+      <div id="cardPlanPremium" class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40 transition-all">
         <div>
           <div class="flex justify-between items-center">
             <span class="text-[10px] font-mono uppercase text-purple-300 tracking-wider">Plan Premium</span>
@@ -88,16 +88,16 @@
         </div>
         <div class="flex gap-2">
           <button id="btnAbrirModal" onclick="abrirModalConfig()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
-            ⚙️ Ver Detalles
+            ⚙️ Configurar Evento / QR
           </button>
-          <button onclick="eliminarEventoPorCompleto()" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all" title="Eliminar y Reiniciar Evento">
-            🗑️ Borrar Evento
+          <button onclick="eliminarEventoPorCompleto()" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all" title="Borrar y Reiniciar Evento">
+            🗑️
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Sección Principal del Panel -->
+    <!-- Sección Principal del Panel (Se habilita tras guardar configuración) -->
     <div id="seccionPanelPrincipal" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
       
       <!-- Emisión de Pases -->
@@ -159,7 +159,7 @@
 
   </div>
 
-  <!-- Modal de Configuración -->
+  <!-- Modal de Configuración y Calibración del QR -->
   <div id="modalConfig" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
       
@@ -268,24 +268,23 @@
           const estandar = parseInt(data.plan_estandar) || 0;
           const premium = parseInt(data.plan_premium) || 0;
 
-          // Jerarquía de activación: Premium > Estándar > Básico
+          // Mostrar conteo entre paréntesis en la cabecera superior
+          document.getElementById('supabasePlanValue').innerHTML = `Básicos: (${basico}) | Estándar: (${estandar}) | Premium: (${premium})`;
+
           if (premium > 0) {
-            limiteMaxEntradas = 999999; // Ilimitadas
-            document.getElementById('supabasePlanValue').innerText = "Plan Premium Activo";
+            limiteMaxEntradas = 999999;
             activarTarjetaUI('cardPlanPremium', 'badgePremium', 'Activo');
           } else if (estandar > 0) {
             limiteMaxEntradas = 350;
-            document.getElementById('supabasePlanValue').innerText = "Plan Estándar Activo";
             activarTarjetaUI('cardPlanEstandar', 'badgeEstandar', 'Activo');
           } else {
             limiteMaxEntradas = 250;
-            document.getElementById('supabasePlanValue').innerText = "Plan Básico Activo";
             activarTarjetaUI('cardPlanBasico', 'badgeBasico', 'Activo');
           }
         }
       } catch (err) {
         console.error("Error consultando planes en Supabase", err);
-        document.getElementById('supabasePlanValue').innerText = "Plan Básico Activo (Por Defecto)";
+        document.getElementById('supabasePlanValue').innerText = "Básicos: (1) | Estándar: (0) | Premium: (0)";
         activarTarjetaUI('cardPlanBasico', 'badgeBasico', 'Activo');
       }
 
@@ -304,9 +303,10 @@
       const card = document.getElementById(cardId);
       card.style.opacity = '1';
       card.style.borderColor = '#7c3aed';
+      card.style.boxShadow = '0 0 20px rgba(124, 58, 237, 0.25)';
       const badge = document.getElementById(badgeId);
       badge.innerText = textoEstado;
-      badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold";
+      badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold animate-pulse";
     }
 
     function actualizarContadorEntradasUI() {
