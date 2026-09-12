@@ -39,9 +39,9 @@
 
       <div class="flex flex-wrap items-center gap-3">
         <div class="bg-slate-950 border border-slate-800 px-4 py-2 rounded-xl text-xs space-y-0.5">
-          <span class="text-slate-400 block text-[10px] uppercase font-mono">Estado de Licencia</span>
+          <span class="text-slate-400 block text-[10px] uppercase font-mono">Plan Activo Detectado</span>
           <div class="flex items-center space-x-2 font-bold text-xs">
-            <span class="text-slate-300">Créditos: <span id="supabasePlanValue" class="text-purple-400 text-sm">Verificando...</span></span>
+            <span class="text-slate-300"><span id="supabasePlanValue" class="text-purple-400 text-sm uppercase">Verificando...</span></span>
           </div>
         </div>
         <button onclick="logout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition-colors">
@@ -50,39 +50,54 @@
       </div>
     </header>
 
-    <!-- Tarjetas Informativas -->
+    <!-- Tarjetas Informativas de los Planes -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40">
-        <div>
-          <span class="text-[10px] font-mono uppercase text-slate-400">Plan Básico</span>
-          <div class="text-lg font-bold text-slate-200 mt-1">250 Accesos</div>
-        </div>
-        <button disabled class="w-full bg-slate-800 text-slate-500 font-semibold py-2.5 rounded-xl text-xs cursor-not-allowed border border-slate-700">No Disponible</button>
-      </div>
-
-      <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40">
-        <div>
-          <span class="text-[10px] font-mono uppercase text-slate-400">Plan Estándar</span>
-          <div class="text-lg font-bold text-slate-200 mt-1">350 Accesos</div>
-        </div>
-        <button disabled class="w-full bg-slate-800 text-slate-500 font-semibold py-2.5 rounded-xl text-xs cursor-not-allowed border border-slate-700">No Disponible</button>
-      </div>
-
-      <div class="bg-slate-900/60 border border-purple-500 bg-purple-950/20 p-5 rounded-2xl flex flex-col justify-between space-y-4">
+      
+      <!-- Plan Básico -->
+      <div id="cardPlanBasico" class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40 transition-all">
         <div>
           <div class="flex justify-between items-center">
-            <span class="text-[10px] font-mono uppercase text-purple-300 tracking-wider">Licencia de Evento V-PASS</span>
-            <span id="badgeEstadoCanje" class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold">Activo</span>
+            <span class="text-[10px] font-mono uppercase text-slate-400">Plan Básico</span>
+            <span id="badgeBasico" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold">Inactivo</span>
           </div>
-          <div class="text-lg font-bold text-slate-200 mt-1" id="nombreEventoLabelCard">Emisión de Pases Ilimitados</div>
+          <div class="text-lg font-bold text-slate-200 mt-1">250 Entradas | 1 Validador</div>
         </div>
-        <button id="btnAbrirModal" onclick="abrirModalConfig()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
-          ⚙️ Ver Configuración del Evento
-        </button>
+        <div class="text-[11px] text-slate-500 font-mono">Control operativo estándar</div>
+      </div>
+
+      <!-- Plan Estándar -->
+      <div id="cardPlanEstandar" class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40 transition-all">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-mono uppercase text-slate-400">Plan Estándar</span>
+            <span id="badgeEstandar" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold">Inactivo</span>
+          </div>
+          <div class="text-lg font-bold text-slate-200 mt-1">350 Entradas | 3 Validadores</div>
+        </div>
+        <div class="text-[11px] text-slate-500 font-mono">Control operativo intermedio</div>
+      </div>
+
+      <!-- Plan Premium / Configuración de Evento -->
+      <div id="cardPlanPremium" class="bg-slate-900/60 border border-slate-800 bg-purple-950/10 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40 transition-all">
+        <div>
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-mono uppercase text-purple-300 tracking-wider">Plan Premium</span>
+            <span id="badgePremium" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold">Inactivo</span>
+          </div>
+          <div class="text-lg font-bold text-slate-200 mt-1" id="nombreEventoLabelCard">Entradas Ilimitadas | 5 Validadores</div>
+        </div>
+        <div class="flex gap-2">
+          <button id="btnAbrirModal" onclick="abrirModalConfig()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
+            ⚙️ Ver Detalles
+          </button>
+          <button onclick="eliminarEventoPorCompleto()" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all" title="Eliminar y Reiniciar Evento">
+            🗑️ Borrar Evento
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Sección Principal del Panel (Limpia y Centrada en Emisión) -->
+    <!-- Sección Principal del Panel -->
     <div id="seccionPanelPrincipal" class="grid grid-cols-1 lg:grid-cols-12 gap-8 hidden">
       
       <!-- Emisión de Pases -->
@@ -93,7 +108,7 @@
               <span>🎟️</span>
               <span>Emisión de Pases Individuales</span>
             </h2>
-            <button onclick="abrirModalConfig()" class="text-xs text-purple-400 hover:underline font-semibold">⚙️ Ver Detalles del Evento</button>
+            <span id="contadorEntradasBadge" class="text-xs text-purple-400 font-mono">0 / 250 Entradas</span>
           </div>
 
           <div class="space-y-3">
@@ -144,7 +159,7 @@
 
   </div>
 
-  <!-- Modal de Configuración (Bloqueado tras primer registro con éxito) -->
+  <!-- Modal de Configuración -->
   <div id="modalConfig" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
       
@@ -235,38 +250,68 @@
     let eventoGuardado = JSON.parse(localStorage.getItem('eskorp_evento_' + companyName)) || null;
     let listaInvitados = JSON.parse(localStorage.getItem('eskorp_invitados_' + companyName)) || [];
     let flyerBase64 = eventoGuardado ? eventoGuardado.flyer : "";
+    let limiteMaxEntradas = 250; // por defecto plan básico
 
-    verificarEstadoCanjeSupabase();
+    sincronizarPlanesSupabase();
     renderizarTablaInvitados();
 
-    async function verificarEstadoCanjeSupabase() {
-      let bloqueadoEnDB = false;
+    async function sincronizarPlanesSupabase() {
       try {
         const { data, error } = await supabaseClient
           .from('organizadores')
-          .select('plan_name')
+          .select('plan_basico, plan_estandar, plan_premium')
           .eq('company_name', companyName)
           .single();
 
-        if (data && data.plan_name !== undefined) {
-          const valorPlan = data.plan_name.toString().trim();
-          document.getElementById('supabasePlanValue').innerText = valorPlan === '0' ? 'Configuración Bloqueada' : `${valorPlan} Disponibles`;
-          if (valorPlan === '0') {
-            bloqueadoEnDB = true;
+        if (data) {
+          const basico = parseInt(data.plan_basico) || 0;
+          const estandar = parseInt(data.plan_estandar) || 0;
+          const premium = parseInt(data.plan_premium) || 0;
+
+          // Jerarquía de activación: Premium > Estándar > Básico
+          if (premium > 0) {
+            limiteMaxEntradas = 999999; // Ilimitadas
+            document.getElementById('supabasePlanValue').innerText = "Plan Premium Activo";
+            activarTarjetaUI('cardPlanPremium', 'badgePremium', 'Activo');
+          } else if (estandar > 0) {
+            limiteMaxEntradas = 350;
+            document.getElementById('supabasePlanValue').innerText = "Plan Estándar Activo";
+            activarTarjetaUI('cardPlanEstandar', 'badgeEstandar', 'Activo');
+          } else {
+            limiteMaxEntradas = 250;
+            document.getElementById('supabasePlanValue').innerText = "Plan Básico Activo";
+            activarTarjetaUI('cardPlanBasico', 'badgeBasico', 'Activo');
           }
         }
       } catch (err) {
-        console.error("Error sincronizando Supabase");
+        console.error("Error consultando planes en Supabase", err);
+        document.getElementById('supabasePlanValue').innerText = "Plan Básico Activo (Por Defecto)";
+        activarTarjetaUI('cardPlanBasico', 'badgeBasico', 'Activo');
       }
 
       if (eventoGuardado) {
         mostrarPanelPrincipal();
-        if (bloqueadoEnDB || eventoGuardado.bloqueado) {
+        if (eventoGuardado.bloqueado) {
           bloquearCamposFormularioPermanentemente();
         }
       } else {
         abrirModalConfig();
       }
+      actualizarContadorEntradasUI();
+    }
+
+    function activarTarjetaUI(cardId, badgeId, textoEstado) {
+      const card = document.getElementById(cardId);
+      card.style.opacity = '1';
+      card.style.borderColor = '#7c3aed';
+      const badge = document.getElementById(badgeId);
+      badge.innerText = textoEstado;
+      badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold";
+    }
+
+    function actualizarContadorEntradasUI() {
+      const textoLimite = limiteMaxEntradas >= 999999 ? 'Ilimitadas' : limiteMaxEntradas;
+      document.getElementById('contadorEntradasBadge').innerText = `${listaInvitados.length} / ${textoLimite} Entradas`;
     }
 
     function bloquearCamposFormularioPermanentemente() {
@@ -277,8 +322,6 @@
       document.getElementById('flyerInput').disabled = true;
       document.getElementById('slidersContenedor').style.display = 'none';
       document.getElementById('btnGuardarConfig').style.display = 'none';
-      document.getElementById('badgeEstadoCanje').innerText = "Bloqueado / Configurado";
-      document.getElementById('badgeEstadoCanje').className = "text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded font-bold";
       document.getElementById('nombreEventoLabelCard').innerText = eventoGuardado.name;
       document.getElementById('modalTitleText').innerText = "Detalles del Evento (Bloqueado Permanentemente)";
       document.getElementById('estadoBloqueoLeyenda').innerText = "Configuración activa y bloqueada contra modificaciones.";
@@ -361,18 +404,18 @@
 
       localStorage.setItem('eskorp_evento_' + companyName, JSON.stringify(eventoGuardado));
 
-      try {
-        await supabaseClient
-          .from('organizadores')
-          .update({ plan_name: '0' })
-          .eq('company_name', companyName);
-      } catch (err) {
-        console.error("Error al actualizar Supabase");
-      }
-
       alert("¡Configuración guardada y bloqueada correctamente!");
       document.getElementById('modalConfig').classList.add('hidden');
       location.reload();
+    }
+
+    function eliminarEventoPorCompleto() {
+      if (confirm("⚠️ ¿Estás totalmente seguro de eliminar este evento y todos sus asistentes? Esta acción reiniciará el panel por completo.")) {
+        localStorage.removeItem('eskorp_evento_' + companyName);
+        localStorage.removeItem('eskorp_invitados_' + companyName);
+        alert("El evento ha sido eliminado y reiniciado correctamente.");
+        location.reload();
+      }
     }
 
     function generarTokenSeguroInteligente(nombreAsistente, nombreEvento) {
@@ -398,6 +441,11 @@
         return;
       }
 
+      if (listaInvitados.length >= limiteMaxEntradas) {
+        alert(`Has alcanzado el límite máximo de entradas (${limiteMaxEntradas}) permitido para tu plan actual.`);
+        return;
+      }
+
       const nameInput = document.getElementById('guestName');
       const phoneInput = document.getElementById('guestPhone');
       const guest = nameInput.value.trim();
@@ -419,6 +467,7 @@
       nameInput.focus();
 
       renderizarTablaInvitados();
+      actualizarContadorEntradasUI();
     }
 
     function renderizarTablaInvitados() {
@@ -433,7 +482,6 @@
 
       tbody.innerHTML = "";
       listaInvitados.forEach((inv, index) => {
-        // Enlace inteligente para el asistente
         const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
         const linkInvitacion = `${baseUrl}ver-entrada.html?org=${encodeURIComponent(companyName)}&token=${encodeURIComponent(inv.token)}`;
 
@@ -463,6 +511,7 @@
         listaInvitados.splice(index, 1);
         localStorage.setItem('eskorp_invitados_' + companyName, JSON.stringify(listaInvitados));
         renderizarTablaInvitados();
+        actualizarContadorEntradasUI();
       }
     }
 
