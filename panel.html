@@ -11,7 +11,20 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js"></script>
+  <!-- Script de Respaldo por si la ruta de carpeta falla en Vercel -->
+  <script>
+    if (typeof window.supabaseClient === 'undefined') {
+      try {
+        // Credenciales autoinicializables de emergencia
+        const SUPABASE_URL_DEFAULT = "https://tu-proyecto.supabase.co"; 
+        const SUPABASE_KEY_DEFAULT = "tu-anon-key";
+        if (typeof window.supabase !== 'undefined') {
+          window.supabaseClient = window.supabase.createClient(SUPABASE_URL_DEFAULT, SUPABASE_KEY_DEFAULT);
+        }
+      } catch(e) { console.error("Error inicializando Supabase de emergencia", e); }
+    }
+  </script>
+  <script src="js/supabase-config.js" onerror="console.warn('No se encontró js/supabase-config.js, usando respaldo o esperando carga')"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 flex flex-col justify-between selection:bg-purple-500 selection:text-white">
 
@@ -289,7 +302,10 @@
 
     async function sincronizarPlanesSupabase() {
       try {
-        const { data } = await supabaseClient
+        const client = window.supabaseClient;
+        if (!client) throw new Error("supabaseClient no disponible");
+
+        const { data } = await client
           .from('organizadores')
           .select('plan_basico, plan_estandar, plan_premium')
           .eq('company_name', companyName)
@@ -310,7 +326,10 @@
 
     async function cargarDatosDesdeSupabase() {
       try {
-        const { data: evData } = await supabaseClient
+        const client = window.supabaseClient;
+        if (!client) throw new Error("supabaseClient no disponible");
+
+        const { data: evData } = await client
           .from('eventos')
           .select('*')
           .eq('company_name', companyName)
@@ -324,7 +343,7 @@
           abrirModalConfig();
         }
 
-        const { data: invData } = await supabaseClient
+        const { data: invData } = await client
           .from('invitados')
           .select('*')
           .eq('company_name', companyName);
@@ -332,7 +351,7 @@
         listaInvitados = invData || [];
         renderizarTablaInvitados();
 
-        const { data: valData } = await supabaseClient
+        const { data: valData } = await client
           .from('validadores')
           .select('*')
           .eq('company_name', companyName);
@@ -401,8 +420,9 @@
         return;
       }
 
+      const client = window.supabaseClient;
       const nuevoVal = { company_name: companyName, username, password };
-      const { error, data } = await supabaseClient.from('validadores').insert([nuevoVal]).select();
+      const { error, data } = await client.from('validadores').insert([nuevoVal]).select();
 
       if (error) {
         alert("Error al registrar el validador en la nube: " + error.message);
@@ -424,7 +444,8 @@
 
     async function eliminarValidador(id, index) {
       if (confirm("¿Estás seguro de eliminar este acceso de validador?")) {
-        const { error } = await supabaseClient.from('validadores').delete().eq('id', id);
+        const client = window.supabaseClient;
+        const { error } = await client.from('validadores').delete().eq('id', id);
         if (error) {
           alert("Error al eliminar de la base de datos.");
           return;
@@ -512,6 +533,9 @@
       const btn = document.getElementById('btnGuardarConfig');
       
       try {
+        const client = window.supabaseClient;
+        if (!client) throw new Error("supabaseClient no está definido. Revisa la conexión.");
+
         const name = document.getElementById('eventName').value.trim();
         const date = document.getElementById('eventDate').value;
         const time = document.getElementById('eventTime').value;
@@ -539,7 +563,7 @@
 
         console.log("Enviando datos a Supabase:", datosEvento);
 
-        const { data, error } = await supabaseClient
+        const { data, error } = await client
           .from('eventos')
           .upsert(datosEvento, { onConflict: 'company_name' })
           .select();
@@ -565,9 +589,10 @@
 
     async function eliminarEventoPorCompleto() {
       if (confirm("⚠️ ¿Deseas eliminar este evento y limpiar todos los registros en la nube?")) {
-        await supabaseClient.from('eventos').delete().eq('company_name', companyName);
-        await supabaseClient.from('invitados').delete().eq('company_name', companyName);
-        await supabaseClient.from('validadores').delete().eq('company_name', companyName);
+        const client = window.supabaseClient;
+        await client.from('eventos').delete().eq('company_name', companyName);
+        await client.from('invitados').delete().eq('company_name', companyName);
+        await client.from('validadores').delete().eq('company_name', companyName);
         alert("Evento reiniciado correctamente en la nube.");
         location.reload();
       }
@@ -611,10 +636,11 @@
         return;
       }
 
+      const client = window.supabaseClient;
       const token = generarTokenSeguroInteligente(guest, eventoGuardado.name);
       const nuevoInvitado = { company_name: companyName, guest, phone, token };
 
-      const { error, data } = await supabaseClient.from('invitados').insert([nuevoInvitado]).select();
+      const { error, data } = await client.from('invitados').insert([nuevoInvitado]).select();
       if (error) {
         alert("Error al registrar invitado en la nube: " + error.message);
         return;
@@ -676,7 +702,8 @@
 
     async function eliminarInvitado(id, index) {
       if (confirm("¿Deseas eliminar este registro?")) {
-        const { error } = await supabaseClient.from('invitados').delete().eq('id', id);
+        const client = window.supabaseClient;
+        const { error } = await client.from('invitados').delete().eq('id', id);
         if (error) {
           alert("Error al eliminar de la nube.");
           return;
