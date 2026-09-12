@@ -562,11 +562,16 @@
 
       tbody.innerHTML = "";
       listaInvitados.forEach((inv, index) => {
-        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-        const linkInvitacion = `${baseUrl}ver-entrada.html?org=${encodeURIComponent(companyName)}&token=${encodeURIComponent(inv.token)}`;
-        const ubicacionTexto = (eventoGuardado && eventoGuardado.location) ? eventoGuardado.location : "Sede principal";
+        // Corrección aplicada: Construcción limpia basada estrictamente en el dominio y ruta actual
+        const originUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        const linkInvitacion = `${originUrl}ver-entrada.html?org=${encodeURIComponent(companyName)}&token=${encodeURIComponent(inv.token)}`;
         
-        const textoWsp = `Hola *${inv.guest}*, esta es tu entrada oficial para *${eventoGuardado.name}*.\n📅 Fecha: ${eventoGuardado.date}\n⏰ Hora: ${eventoGuardado.time}\n📍 Ubicación: ${ubicacionTexto}\n\nDescarga tu pase digital aquí:\n${linkInvitacion}`;
+        const ubicacionTexto = (eventoGuardado && eventoGuardado.location) ? eventoGuardado.location : "Sede principal";
+        const nombreEventoActual = (eventoGuardado && eventoGuardado.name) ? eventoGuardado.name : "Evento Corporativo";
+        const fechaEventoActual = (eventoGuardado && eventoGuardado.date) ? eventoGuardado.date : "Por confirmar";
+        const horaEventoActual = (eventoGuardado && eventoGuardado.time) ? eventoGuardado.time : "Por confirmar";
+        
+        const textoWsp = `Hola *${inv.guest}*, esta es tu entrada oficial para *${nombreEventoActual}*.\n📅 Fecha: ${fechaEventoActual}\n⏰ Hora: ${horaEventoActual}\n📍 Ubicación: ${ubicacionTexto}\n\nDescarga tu pase digital aquí:\n${linkInvitacion}`;
         const waLink = `https://wa.me/${inv.phone}?text=${encodeURIComponent(textoWsp)}`;
 
         const tr = document.createElement('tr');
@@ -637,17 +642,15 @@
             ctx.fillStyle = "#0f172a";
             ctx.font = "bold 20px monospace";
             ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(textoCodigo, qrX + (sizeQR / 2), qrY + sizeQR + 28);
+            ctx.fillText(textoCodigo, qrX + (sizeQR / 2), qrY + sizeQR + 35);
           };
         });
       };
     }
 
-    async function descargarEntrada(index, formato) {
+    function descargarEntrada(index, tipo) {
+      if (!eventoGuardado) return;
       const inv = listaInvitados[index];
-      if (!eventoGuardado || !eventoGuardado.flyer) return;
-
       const canvas = document.getElementById('canvasExportadorOculto');
       const ctx = canvas.getContext('2d');
       const img = new Image();
@@ -659,7 +662,7 @@
         canvas.height = 1000;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        QRCode.toDataURL(inv.token, { width: 350, margin: 1 }, function (err, qrDataUrl) {
+        QRCode.toDataURL(inv.token, { width: 400, margin: 1 }, function (err, qrDataUrl) {
           if (err) return;
           const imgQR = new Image();
           imgQR.src = qrDataUrl;
@@ -683,22 +686,47 @@
             ctx.fillStyle = "#0f172a";
             ctx.font = "bold 20px monospace";
             ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(inv.token, qrX + (sizeQR / 2), qrY + sizeQR + 28);
+            ctx.fillText(inv.token, qrX + (sizeQR / 2), qrY + sizeQR + 35);
 
-            if (formato === 'imagen') {
+            // Textos adicionales de invitado en la parte superior si se desea
+            ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+            ctx.fillRect(40, 40, 720, 90);
+            ctx.strokeStyle = "#7c3aed";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(40, 40, 720, 90);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 26px sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText(inv.guest, 65, 78);
+
+            ctx.fillStyle = "#a78bfa";
+            ctx.font = "16px monospace";
+            ctx.fillText(`EVENTO: ${eventoGuardado.name} | FECHA: ${eventoGuardado.date}`, 65, 108);
+
+            const dataUrlFinal = canvas.toDataURL('image/jpeg', 0.95);
+
+            if (tipo === 'imagen') {
               const link = document.createElement('a');
-              link.download = `Entrada-${inv.guest.replace(/\s+/g, '_')}.png`;
-              link.href = canvas.toDataURL('image/png');
+              link.download = `Entrada_${inv.guest.replace(/\s+/g, '_')}.jpg`;
+              link.href = dataUrlFinal;
               link.click();
-            } else if (formato === 'pdf') {
-              const imgData = canvas.toDataURL('image/png');
+            } else if (tipo === 'pdf') {
               const { jsPDF } = window.jspdf;
-              const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+              const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
               const pageWidth = pdf.internal.pageSize.getWidth();
               const pageHeight = pdf.internal.pageSize.getHeight();
-              pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
-              pdf.save(`Entrada-${inv.guest.replace(/\s+/g, '_')}.pdf`);
+              
+              const imgWidth = 140;
+              const imgHeight = 175;
+              const xPos = (pageWidth - imgWidth) / 2;
+              const yPos = (pageHeight - imgHeight) / 2;
+
+              pdf.setFillColor(10, 15, 30);
+              pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+              pdf.addImage(dataUrlFinal, 'JPEG', xPos, yPos, imgWidth, imgHeight);
+              pdf.save(`Entrada_${inv.guest.replace(/\s+/g, '_')}.pdf`);
             }
           };
         });
