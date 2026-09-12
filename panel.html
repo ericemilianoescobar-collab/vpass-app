@@ -50,11 +50,11 @@
       </div>
     </header>
 
-    <!-- Sección de Planes Interactivos y Brillantes / Configuración -->
+    <!-- Sección de Planes Interactivos y Canje en Nube -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
       <!-- Plan Básico -->
-      <div id="cardPlanBasico" class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40 transition-all">
+      <div id="cardPlanBasico" class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 transition-all">
         <div>
           <div class="flex justify-between items-center">
             <span class="text-[10px] font-mono uppercase text-slate-400">Plan Básico</span>
@@ -62,11 +62,16 @@
           </div>
           <div class="text-lg font-bold text-slate-200 mt-1">250 Entradas | 1 Validador</div>
         </div>
-        <div class="text-[11px] text-slate-500 font-mono">Control operativo estándar</div>
+        <div class="flex flex-col gap-2">
+          <div class="text-[11px] text-slate-500 font-mono">Control operativo estándar</div>
+          <button id="btnCanjearBasico" onclick="canjearPlan('basico')" class="w-full bg-slate-800 hover:bg-purple-600 text-slate-300 hover:text-white font-semibold py-2 rounded-xl text-xs transition-all hidden">
+            🎟️ Canjear Plan Básico
+          </button>
+        </div>
       </div>
 
       <!-- Plan Estándar -->
-      <div id="cardPlanEstandar" class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40 transition-all">
+      <div id="cardPlanEstandar" class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 transition-all">
         <div>
           <div class="flex justify-between items-center">
             <span class="text-[10px] font-mono uppercase text-slate-400">Plan Estándar</span>
@@ -74,11 +79,16 @@
           </div>
           <div class="text-lg font-bold text-slate-200 mt-1">350 Entradas | 3 Validadores</div>
         </div>
-        <div class="text-[11px] text-slate-500 font-mono">Control operativo intermedio</div>
+        <div class="flex flex-col gap-2">
+          <div class="text-[11px] text-slate-500 font-mono">Control operativo intermedio</div>
+          <button id="btnCanjearEstandar" onclick="canjearPlan('estandar')" class="w-full bg-slate-800 hover:bg-purple-600 text-slate-300 hover:text-white font-semibold py-2 rounded-xl text-xs transition-all hidden">
+            🎟️ Canjear Plan Estándar
+          </button>
+        </div>
       </div>
 
       <!-- Plan Premium con Acceso a Configuración de Evento -->
-      <div id="cardPlanPremium" class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 opacity-40 transition-all">
+      <div id="cardPlanPremium" class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 transition-all">
         <div>
           <div class="flex justify-between items-center">
             <span class="text-[10px] font-mono uppercase text-purple-300 tracking-wider">Plan Premium</span>
@@ -86,13 +96,18 @@
           </div>
           <div class="text-lg font-bold text-slate-200 mt-1" id="nombreEventoLabelCard">Entradas Ilimitadas | 5 Validadores</div>
         </div>
-        <div class="flex gap-2">
-          <button id="btnAbrirModal" onclick="abrirModalConfig()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
-            ⚙️ Configurar Evento / QR
+        <div class="space-y-2">
+          <button id="btnCanjearPremium" onclick="canjearPlan('premium')" class="w-full bg-slate-800 hover:bg-purple-600 text-slate-300 hover:text-white font-semibold py-2 rounded-xl text-xs transition-all hidden">
+            🎟️ Canjear Plan Premium
           </button>
-          <button onclick="eliminarEventoPorCompleto()" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all" title="Borrar y Reiniciar Evento">
-            🗑️
-          </button>
+          <div class="flex gap-2">
+            <button id="btnAbrirModal" onclick="abrirModalConfig()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-md">
+              ⚙️ Configurar Evento / QR
+            </button>
+            <button onclick="eliminarEventoPorCompleto()" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all" title="Borrar y Reiniciar Evento">
+              🗑️
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -242,7 +257,7 @@
     ESKORP V-PASS &copy; 2026 - Sistema Antifraude y Control de Accesos
   </footer>
 
-  <!-- Lógica Principal del Panel -->
+  <!-- Lógica Principal del Panel conectada a Supabase -->
   <script>
     const companyName = session.company_name || session.empresa || "ESKORP";
     document.getElementById('welcomeOrgTitle').innerText = `Portal de ${companyName}`;
@@ -268,23 +283,18 @@
           const estandar = parseInt(data.plan_estandar) || 0;
           const premium = parseInt(data.plan_premium) || 0;
 
-          // Mostrar conteo entre paréntesis en la cabecera superior
           document.getElementById('supabasePlanValue').innerHTML = `Básicos: (${basico}) | Estándar: (${estandar}) | Premium: (${premium})`;
 
-          if (premium > 0) {
-            limiteMaxEntradas = 999999;
-            activarTarjetaUI('cardPlanPremium', 'badgePremium', 'Activo');
-          } else if (estandar > 0) {
-            limiteMaxEntradas = 350;
-            activarTarjetaUI('cardPlanEstandar', 'badgeEstandar', 'Activo');
-          } else {
-            limiteMaxEntradas = 250;
-            activarTarjetaUI('cardPlanBasico', 'badgeBasico', 'Activo');
-          }
+          gestionarTarjetaPlan('basico', basico, 250, 'cardPlanBasico', 'badgeBasico', 'btnCanjearBasico');
+          gestionarTarjetaPlan('estandar', estandar, 350, 'cardPlanEstandar', 'badgeEstandar', 'btnCanjearEstandar');
+          gestionarTarjetaPlan('premium', premium, 999999, 'cardPlanPremium', 'badgePremium', 'btnCanjearPremium');
+          
+          gestionTarjetasYLimites(basico, estandar, premium);
         }
       } catch (err) {
         console.error("Error consultando planes en Supabase", err);
         document.getElementById('supabasePlanValue').innerText = "Básicos: (1) | Estándar: (0) | Premium: (0)";
+        limiteMaxEntradas = 250;
         activarTarjetaUI('cardPlanBasico', 'badgeBasico', 'Activo');
       }
 
@@ -299,14 +309,74 @@
       actualizarContadorEntradasUI();
     }
 
+    function gestionTarjetasYLimites(basico, estandar, premium) {
+      if (premium > 0) {
+        limiteMaxEntradas = 999999;
+        activarTarjetaUI('cardPlanPremium', 'badgePremium', 'Activo');
+      } else if (estandar > 0) {
+        limiteMaxEntradas = 350;
+        activarTarjetaUI('cardPlanEstandar', 'badgeEstandar', 'Activo');
+      } else {
+        limiteMaxEntradas = 250;
+        activarTarjetaUI('cardPlanBasico', 'badgeBasico', 'Activo');
+      }
+    }
+
+    function gestionarTarjetaPlan(tipo, valor, limiteEntradas, cardId, badgeId, btnId) {
+      const card = document.getElementById(cardId);
+      const badge = document.getElementById(badgeId);
+      const btnCanjear = document.getElementById(btnId);
+
+      if (valor > 0) {
+        card.style.opacity = '1';
+        card.style.borderColor = '#7c3aed';
+        badge.innerText = 'Disponible';
+        badge.className = "text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded font-bold";
+        if (btnCanjear) btnCanjear.classList.remove('hidden');
+      } else {
+        card.style.opacity = '0.4';
+        badge.innerText = 'Canjeado / Usado';
+        badge.className = "text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-bold";
+        if (btnCanjear) btnCanjear.classList.add('hidden');
+      }
+    }
+
+    async function canjearPlan(tipo) {
+      const columna = `plan_${tipo}`;
+      if (!confirm(`¿Estás seguro de canjear el Plan ${tipo.toUpperCase()}? Al canjearlo, el saldo se descontará a 0 y se habilitarán los recursos de este nivel.`)) {
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('organizadores')
+          .update({ [columna]: 0 })
+          .eq('company_name', companyName);
+
+        if (error) {
+          alert('Error al canjear en Supabase: ' + error.message);
+          return;
+        }
+
+        alert(`¡Plan ${tipo} canjeado con éxito! Sincronizando panel...`);
+        sincronizarPlanesSupabase();
+      } catch (err) {
+        console.error("Error en canje:", err);
+        alert('Ocurrió un error inesperado al procesar el canje.');
+      }
+    }
+
     function activarTarjetaUI(cardId, badgeId, textoEstado) {
       const card = document.getElementById(cardId);
+      if(!card) return;
       card.style.opacity = '1';
       card.style.borderColor = '#7c3aed';
       card.style.boxShadow = '0 0 20px rgba(124, 58, 237, 0.25)';
       const badge = document.getElementById(badgeId);
-      badge.innerText = textoEstado;
-      badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold animate-pulse";
+      if(badge) {
+        badge.innerText = textoEstado;
+        badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-bold animate-pulse";
+      }
     }
 
     function actualizarContadorEntradasUI() {
@@ -517,6 +587,7 @@
 
     function renderizarFlyerEnCanvas(canvasId, textoCodigo, posXVal, posYVal, sizeVal) {
       const canvas = document.getElementById(canvasId);
+      if(!canvas) return;
       const ctx = canvas.getContext('2d');
 
       const img = new Image();
